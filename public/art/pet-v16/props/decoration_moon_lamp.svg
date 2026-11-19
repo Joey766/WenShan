@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="月光小灯"><defs>
+<radialGradient id="gold"><stop stop-color="#fff4c8"/><stop offset=".64" stop-color="#e4b567"/><stop offset="1" stop-color="#a96d3a"/></radialGradient>
+<linearGradient id="wood" x2="0" y2="1"><stop stop-color="#d6ad70"/><stop offset="1" stop-color="#9a6941"/></linearGradient>
+<linearGradient id="jade" x2="1" y2="1"><stop stop-color="#d8edbd"/><stop offset="1" stop-color="#77a56f"/></linearGradient>
+<linearGradient id="cloud" x2="1" y2="1"><stop stop-color="#fffefd"/><stop offset="1" stop-color="#c9dbf4"/></linearGradient>
+<linearGradient id="night" x2="1" y2="1"><stop stop-color="#555875"/><stop offset="1" stop-color="#232943"/></linearGradient>
+<filter id="shadow"><feGaussianBlur stdDeviation="9"/></filter><filter id="soft"><feGaussianBlur stdDeviation="2.4"/></filter></defs>
+<ellipse cx="256" cy="452" rx="138" ry="22" fill="#554833" opacity=".18" filter="url(#shadow)"/>
+
+<rect x="154" y="243" width="204" height="171" rx="32" fill="url(#wood)" stroke="#805738" stroke-width="10"/>
+<rect x="177" y="269" width="158" height="119" rx="22" fill="#fff1bb" stroke="#ddad69" stroke-width="7"/>
+<path d="M282 287a43 43 0 1 0 0 76c-30-6-38-66 0-76Z" fill="#d6a26c"/>
+<path d="M198 244v-84q54-84 116 0v84" fill="none" stroke="#b78856" stroke-width="11"/>
+<circle cx="314" cy="315" r="8" fill="#fff"/></svg>

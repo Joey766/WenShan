@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="摸头反馈光点"><defs>
+<radialGradient id="gold"><stop stop-color="#fff4c8"/><stop offset=".64" stop-color="#e4b567"/><stop offset="1" stop-color="#a96d3a"/></radialGradient>
+<linearGradient id="wood" x2="0" y2="1"><stop stop-color="#d6ad70"/><stop offset="1" stop-color="#9a6941"/></linearGradient>
+<linearGradient id="jade" x2="1" y2="1"><stop stop-color="#d8edbd"/><stop offset="1" stop-color="#77a56f"/></linearGradient>
+<linearGradient id="cloud" x2="1" y2="1"><stop stop-color="#fffefd"/><stop offset="1" stop-color="#c9dbf4"/></linearGradient>
+<linearGradient id="night" x2="1" y2="1"><stop stop-color="#555875"/><stop offset="1" stop-color="#232943"/></linearGradient>
+<filter id="shadow"><feGaussianBlur stdDeviation="9"/></filter><filter id="soft"><feGaussianBlur stdDeviation="2.4"/></filter></defs>
+<ellipse cx="256" cy="452" rx="138" ry="22" fill="#554833" opacity=".18" filter="url(#shadow)"/>
+
+<path d="m257 110 28 112 112 34-112 28-28 110-31-110-110-28 110-34Z" fill="url(#gold)"/>
+<path d="m392 116 9 40 38 10-38 9-9 38-10-38-36-9 36-10Z" fill="#ffd9a2"/>
+<path d="m130 351 9 36 35 10-35 8-9 37-9-37-34-8 34-10Z" fill="#f9d5a3"/></svg>

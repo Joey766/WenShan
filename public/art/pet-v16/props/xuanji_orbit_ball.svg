@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="玄机星轨玩具"><defs>
+<radialGradient id="gold"><stop stop-color="#fff4c8"/><stop offset=".64" stop-color="#e4b567"/><stop offset="1" stop-color="#a96d3a"/></radialGradient>
+<linearGradient id="wood" x2="0" y2="1"><stop stop-color="#d6ad70"/><stop offset="1" stop-color="#9a6941"/></linearGradient>
+<linearGradient id="jade" x2="1" y2="1"><stop stop-color="#d8edbd"/><stop offset="1" stop-color="#77a56f"/></linearGradient>
+<linearGradient id="cloud" x2="1" y2="1"><stop stop-color="#fffefd"/><stop offset="1" stop-color="#c9dbf4"/></linearGradient>
+<linearGradient id="night" x2="1" y2="1"><stop stop-color="#555875"/><stop offset="1" stop-color="#232943"/></linearGradient>
+<filter id="shadow"><feGaussianBlur stdDeviation="9"/></filter><filter id="soft"><feGaussianBlur stdDeviation="2.4"/></filter></defs>
+<ellipse cx="256" cy="452" rx="138" ry="22" fill="#554833" opacity=".18" filter="url(#shadow)"/>
+
+<circle cx="253" cy="258" r="121" fill="url(#night)" stroke="#c59a68" stroke-width="8"/>
+<circle cx="229" cy="203" r="13" fill="#e1c88e"/><circle cx="302" cy="277" r="9" fill="#f5e2b6"/>
+<path d="M257 156v22m-10-11h20M335 212v16m-8-8h16" stroke="#ffdfa0" stroke-width="6" stroke-linecap="round"/>
+<ellipse cx="256" cy="257" rx="185" ry="57" transform="rotate(-27 256 257)" stroke="url(#gold)" stroke-width="17" fill="none"/>
+<circle cx="366" cy="190" r="19" fill="#ffebb4" stroke="#a47444" stroke-width="5"/>
+<path d="M220 293a35 35 0 1 0 70 0c0-19-35-19-35-38 0-19 35-20 35-39a35 35 0 0 0-70 0" fill="#f7e8c4"/>
+<circle cx="256" cy="216" r="9" fill="#312c3d"/><circle cx="256" cy="293" r="9" fill="#312c3d"/></svg>

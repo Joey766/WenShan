@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="飞花枝"><defs>
+<radialGradient id="gold"><stop stop-color="#fff4c8"/><stop offset=".64" stop-color="#e4b567"/><stop offset="1" stop-color="#a96d3a"/></radialGradient>
+<linearGradient id="wood" x2="0" y2="1"><stop stop-color="#d6ad70"/><stop offset="1" stop-color="#9a6941"/></linearGradient>
+<linearGradient id="jade" x2="1" y2="1"><stop stop-color="#d8edbd"/><stop offset="1" stop-color="#77a56f"/></linearGradient>
+<linearGradient id="cloud" x2="1" y2="1"><stop stop-color="#fffefd"/><stop offset="1" stop-color="#c9dbf4"/></linearGradient>
+<linearGradient id="night" x2="1" y2="1"><stop stop-color="#555875"/><stop offset="1" stop-color="#232943"/></linearGradient>
+<filter id="shadow"><feGaussianBlur stdDeviation="9"/></filter><filter id="soft"><feGaussianBlur stdDeviation="2.4"/></filter></defs>
+<ellipse cx="256" cy="452" rx="138" ry="22" fill="#554833" opacity=".18" filter="url(#shadow)"/>
+
+<path d="M250 434C241 334 270 216 332 127M245 335c-49-60-74-113-83-187m125 100c54-24 94-33 128-28" fill="none" stroke="#8a6046" stroke-width="18" stroke-linecap="round"/>
+<g fill="#efadc3" stroke="#fff0f5" stroke-width="4"><circle cx="334" cy="121" r="38"/><circle cx="161" cy="152" r="36"/><circle cx="401" cy="221" r="31"/><circle cx="276" cy="217" r="31"/></g>
+<g fill="#fff1ba"><circle cx="334" cy="121" r="12"/><circle cx="161" cy="152" r="12"/><circle cx="401" cy="221" r="11"/><circle cx="276" cy="217" r="11"/></g></svg>

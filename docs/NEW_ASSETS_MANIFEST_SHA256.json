@@ -1,0 +1,82 @@
+{
+  "public/assets/backgrounds/01_entrance_shanhai.png": {
+    "bytes": 2266609,
+    "sha256": "41ef455b2a951a5e819d8fcfd387af2a91731671609efc6696c9e55d8ec65e5d"
+  },
+  "public/assets/backgrounds/02_divination_platform.png": {
+    "bytes": 2193609,
+    "sha256": "b8e29a8c56a07f2c9f1fa1bdca0e1f3a728d54e486cb7f0ae9f9e204ece5caaa"
+  },
+  "public/assets/backgrounds/03_interpretation_pavilion.png": {
+    "bytes": 2064183,
+    "sha256": "952621399251f24a216a9a9a30909fcd6188437079d12860bcd3bcc3bed0411f"
+  },
+  "public/assets/props/coins/coin_center_front.png": {
+    "bytes": 703865,
+    "sha256": "48b1518523620f7936e2c1f43a6a4dd66e1683b7fb90b06f701af9353e39fb00"
+  },
+  "public/assets/props/coins/coin_left_angled.png": {
+    "bytes": 645680,
+    "sha256": "bcdb75a63898b917a8c94094ebe3b8b58b87ceab608e152a36ded91f501c656c"
+  },
+  "public/assets/props/coins/coin_right_angled.png": {
+    "bytes": 676903,
+    "sha256": "b9b93d0df971661f4d4452aced404ca5c9484f1797bcf3e52cf2e72eeffc0142"
+  },
+  "public/assets/props/coins/three_coins_original_transparent.png": {
+    "bytes": 2502463,
+    "sha256": "dc4a56463352fa0ad46ef77530c2534ee79ac7bda22a9d1eb8ca1dd399b9356d"
+  },
+  "public/assets/interaction/coins/coin_yang_face.png": {
+    "bytes": 212270,
+    "sha256": "77daceaa662218769033a8456727db9b32218d48f27fe5029bc62b9c66fa7163"
+  },
+  "public/assets/interaction/coins/coin_yang_face.svg": {
+    "bytes": 1586,
+    "sha256": "7a42e447c163debc8047f33ffc1541bcb38f15f98d44cf638af7281cd0fc9479"
+  },
+  "public/assets/interaction/coins/coin_yin_face.png": {
+    "bytes": 211734,
+    "sha256": "82834f8dfb03d9b0b2f036f5e70a5afaa0880544964d24d51e88a20f62e8f721"
+  },
+  "public/assets/interaction/coins/coin_yin_face.svg": {
+    "bytes": 1536,
+    "sha256": "3552220a807e1d47f6aa52b7d555411c5bbb23fe07857cfab734bb9523d064ee"
+  },
+  "public/assets/interaction/effects/golden_divination_ring.png": {
+    "bytes": 237242,
+    "sha256": "25764d07e1e2174782d7239977bab02e98ccfa1f2f38f7268e1688478d6f8be5"
+  },
+  "public/assets/interaction/effects/golden_divination_ring.svg": {
+    "bytes": 1543,
+    "sha256": "2201dd5b0e950dd29c0ea80a1f1d17eea4c5afcb5dbd08589cc59921a3dd53ed"
+  },
+  "public/assets/interaction/fog/foreground_mist_overlay.png": {
+    "bytes": 683215,
+    "sha256": "633e77fc3027e0d868362e0954d6dee4cee7e7fc3a19dcfc183671b08cc1bc70"
+  },
+  "public/assets/interaction/lantern/lantern_hanging.png": {
+    "bytes": 232430,
+    "sha256": "7c7443c650ee6a3495e2ac4997298fda04bd69b57433eaeac4c104ae9534448a"
+  },
+  "public/assets/interaction/lantern/lantern_hanging.svg": {
+    "bytes": 2572,
+    "sha256": "6d6610e9f1a62f13f4d58e5339ad031b23184489195aae1fac6ebe6e4cd82c6f"
+  },
+  "public/assets/interaction/scroll/blank_ancient_scroll.png": {
+    "bytes": 444134,
+    "sha256": "a677cdc41d515e55f7bfc178d8c25bb4d0ff76efa13224f791a1a5e34fb5d855"
+  },
+  "public/assets/interaction/scroll/blank_ancient_scroll.svg": {
+    "bytes": 4512,
+    "sha256": "e6d7d0ccca18722a5554f44375a24284944ffaa6a2f962a02808eac9a210ae53"
+  },
+  "docs/CODEX_MAX_FULL_REBUILD_PROMPT.md": {
+    "bytes": 16584,
+    "sha256": "0a2d056dfb89fed5835d64dfa25053a62abbe19d6b80183521d61fa22af2d4d4"
+  },
+  "docs/NEW_ASSETS_README.md": {
+    "bytes": 1709,
+    "sha256": "2bce6735a531daa1a34c5b285422d5831a3a1f5b5b5a7a5de2edbcb0331ba379"
+  }
+}

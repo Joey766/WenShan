@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="小卦铜钱摇铃"><defs>
+<radialGradient id="gold"><stop stop-color="#fff4c8"/><stop offset=".64" stop-color="#e4b567"/><stop offset="1" stop-color="#a96d3a"/></radialGradient>
+<linearGradient id="wood" x2="0" y2="1"><stop stop-color="#d6ad70"/><stop offset="1" stop-color="#9a6941"/></linearGradient>
+<linearGradient id="jade" x2="1" y2="1"><stop stop-color="#d8edbd"/><stop offset="1" stop-color="#77a56f"/></linearGradient>
+<linearGradient id="cloud" x2="1" y2="1"><stop stop-color="#fffefd"/><stop offset="1" stop-color="#c9dbf4"/></linearGradient>
+<linearGradient id="night" x2="1" y2="1"><stop stop-color="#555875"/><stop offset="1" stop-color="#232943"/></linearGradient>
+<filter id="shadow"><feGaussianBlur stdDeviation="9"/></filter><filter id="soft"><feGaussianBlur stdDeviation="2.4"/></filter></defs>
+<ellipse cx="256" cy="452" rx="138" ry="22" fill="#554833" opacity=".18" filter="url(#shadow)"/>
+
+<path d="M255 335v89" stroke="#a56942" stroke-width="26" stroke-linecap="round"/>
+<path d="M241 417q15 20 30 0" fill="none" stroke="#e6bd75" stroke-width="18" stroke-linecap="round"/>
+<circle cx="256" cy="231" r="132" fill="url(#gold)" stroke="#9b6136" stroke-width="13"/>
+<circle cx="256" cy="231" r="111" fill="none" stroke="#fff4cf" stroke-opacity=".8" stroke-width="6"/>
+<rect x="214" y="189" width="84" height="84" rx="5" fill="#8b5a39" stroke="#ffe4aa" stroke-width="10"/>
+<path d="M156 154q18-17 35-16M321 314q20-9 33-27" stroke="#fff6cf" stroke-width="9" opacity=".8" stroke-linecap="round"/>
+<path d="M206 368q-20 32-36 39m36-39q0 33 0 45m0-45q18 32 34 36" fill="none" stroke="#b04f43" stroke-width="13" stroke-linecap="round"/></svg>

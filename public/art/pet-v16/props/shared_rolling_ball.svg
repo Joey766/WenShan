@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="共用软绒球"><defs>
+<radialGradient id="gold"><stop stop-color="#fff4c8"/><stop offset=".64" stop-color="#e4b567"/><stop offset="1" stop-color="#a96d3a"/></radialGradient>
+<linearGradient id="wood" x2="0" y2="1"><stop stop-color="#d6ad70"/><stop offset="1" stop-color="#9a6941"/></linearGradient>
+<linearGradient id="jade" x2="1" y2="1"><stop stop-color="#d8edbd"/><stop offset="1" stop-color="#77a56f"/></linearGradient>
+<linearGradient id="cloud" x2="1" y2="1"><stop stop-color="#fffefd"/><stop offset="1" stop-color="#c9dbf4"/></linearGradient>
+<linearGradient id="night" x2="1" y2="1"><stop stop-color="#555875"/><stop offset="1" stop-color="#232943"/></linearGradient>
+<filter id="shadow"><feGaussianBlur stdDeviation="9"/></filter><filter id="soft"><feGaussianBlur stdDeviation="2.4"/></filter></defs>
+<ellipse cx="256" cy="452" rx="138" ry="22" fill="#554833" opacity=".18" filter="url(#shadow)"/>
+
+<circle cx="256" cy="264" r="145" fill="#f7d5b7" stroke="#dcaa88" stroke-width="10"/>
+<path d="M191 163c52-27 102-19 132 9" fill="none" stroke="#fff6ee" stroke-width="15" stroke-linecap="round" opacity=".75"/>
+<path d="M254 127q-11 120 3 275M122 256q133 20 269-7" fill="none" stroke="#e7b697" stroke-width="7" opacity=".65"/>
+<circle cx="207" cy="256" r="10" fill="#a26c58"/><circle cx="309" cy="256" r="10" fill="#a26c58"/>
+<path d="M242 289q15 14 30 0" stroke="#a26c58" stroke-width="7" fill="none" stroke-linecap="round"/></svg>

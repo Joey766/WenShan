@@ -1,0 +1,130 @@
+{
+  "xiaogua": [
+    {
+      "id": "idle_sway",
+      "name": "呼吸轻晃",
+      "kind": "idle",
+      "src": "/art/pet-v16/motions/xiaogua/idle_sway.webp"
+    },
+    {
+      "id": "dazed_tilt",
+      "name": "呆呆歪头",
+      "kind": "dazed",
+      "src": "/art/pet-v16/motions/xiaogua/dazed_tilt.webp"
+    },
+    {
+      "id": "pout_blink",
+      "name": "撅嘴眨眼",
+      "kind": "pout",
+      "src": "/art/pet-v16/motions/xiaogua/pout_blink.webp"
+    },
+    {
+      "id": "adjust_hat",
+      "name": "小圆爪扶竹笠",
+      "kind": "accessory",
+      "src": "/art/pet-v16/motions/xiaogua/adjust_hat.webp"
+    },
+    {
+      "id": "coin_nod",
+      "name": "铜钱轻晃点头",
+      "kind": "happy",
+      "src": "/art/pet-v16/motions/xiaogua/coin_nod.webp"
+    }
+  ],
+  "yunyao": [
+    {
+      "id": "cloud_breathe",
+      "name": "软云舒展",
+      "kind": "idle",
+      "src": "/art/pet-v16/motions/yunyao/cloud_breathe.webp"
+    },
+    {
+      "id": "slow_float",
+      "name": "轻飘发呆",
+      "kind": "dazed",
+      "src": "/art/pet-v16/motions/yunyao/slow_float.webp"
+    },
+    {
+      "id": "sleepy_blink",
+      "name": "困困眨眼",
+      "kind": "pout",
+      "src": "/art/pet-v16/motions/yunyao/sleepy_blink.webp"
+    },
+    {
+      "id": "halo_peek",
+      "name": "抬头看光环",
+      "kind": "accessory",
+      "src": "/art/pet-v16/motions/yunyao/halo_peek.webp"
+    },
+    {
+      "id": "soft_cheer",
+      "name": "开心小幅摇摆",
+      "kind": "happy",
+      "src": "/art/pet-v16/motions/yunyao/soft_cheer.webp"
+    }
+  ],
+  "qingpu": [
+    {
+      "id": "leaf_breathe",
+      "name": "叶帽下呼吸",
+      "kind": "idle",
+      "src": "/art/pet-v16/motions/qingpu/leaf_breathe.webp"
+    },
+    {
+      "id": "dew_follow",
+      "name": "追着露珠歪头",
+      "kind": "dazed",
+      "src": "/art/pet-v16/motions/qingpu/dew_follow.webp"
+    },
+    {
+      "id": "shy_pout",
+      "name": "害羞撅嘴",
+      "kind": "pout",
+      "src": "/art/pet-v16/motions/qingpu/shy_pout.webp"
+    },
+    {
+      "id": "fix_leaf_hat",
+      "name": "轻扶叶帽",
+      "kind": "accessory",
+      "src": "/art/pet-v16/motions/qingpu/fix_leaf_hat.webp"
+    },
+    {
+      "id": "sun_nod",
+      "name": "舒展点头",
+      "kind": "happy",
+      "src": "/art/pet-v16/motions/qingpu/sun_nod.webp"
+    }
+  ],
+  "xuanji": [
+    {
+      "id": "orbit_breathe",
+      "name": "星团轻呼吸",
+      "kind": "idle",
+      "src": "/art/pet-v16/motions/xuanji/orbit_breathe.webp"
+    },
+    {
+      "id": "stargaze",
+      "name": "仰望星星",
+      "kind": "dazed",
+      "src": "/art/pet-v16/motions/xuanji/stargaze.webp"
+    },
+    {
+      "id": "dazed_blink",
+      "name": "半眯眼发呆",
+      "kind": "pout",
+      "src": "/art/pet-v16/motions/xuanji/dazed_blink.webp"
+    },
+    {
+      "id": "ring_wiggle",
+      "name": "星环轻晃",
+      "kind": "accessory",
+      "src": "/art/pet-v16/motions/xuanji/ring_wiggle.webp"
+    },
+    {
+      "id": "star_cheer",
+      "name": "开心轻颤",
+      "kind": "happy",
+      "src": "/art/pet-v16/motions/xuanji/star_cheer.webp"
+    }
+  ]
+}

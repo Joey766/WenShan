@@ -1,0 +1,313 @@
+{
+  "bundle": "问山 · v2增量素材（仅包含v1之后的新增内容）",
+  "version": "2.0-preview",
+  "base_package": "问山_交给Codex的素材包_v1.zip",
+  "contents": [
+    {
+      "source": "a_highly_detailed_cinematic_3d_plush_3d_rende.png",
+      "relative_path": "assets/scenes/02_wenxintai/wenxintai_v01_initial.png",
+      "group": "scene-02",
+      "status": "candidate-approved-direction",
+      "notes": "问心台 3D 场景/UI 候选。用户认可整体方向；不是可分离的交互层。",
+      "sha256": "148445c32e646123617ad858542fe633940bf220e94b041ae700f84c3b884db6",
+      "format": "PNG",
+      "resolution": [
+        1672,
+        941
+      ],
+      "mode": "RGB"
+    },
+    {
+      "source": "a_highly_detailed_cute_3d_cgi_styled_fantasy_ui_s.png",
+      "relative_path": "assets/scenes/02_wenxintai/wenxintai_v02_ui_variant.png",
+      "group": "scene-02",
+      "status": "candidate-approved-direction",
+      "notes": "问心台 3D 场景/UI 候选。用户认可整体方向；不是可分离的交互层。",
+      "sha256": "28d8ee3d0df81d26d41bd285643057f14e84f79237e87d772ea0117e170d33c4",
+      "format": "PNG",
+      "resolution": [
+        1672,
+        941
+      ],
+      "mode": "RGB"
+    },
+    {
+      "source": "a_highly_detailed_cute_3d_chibi_style_fantasy_ui.png",
+      "relative_path": "assets/scenes/02_wenxintai/wenxintai_v03_ui_variant.png",
+      "group": "scene-02",
+      "status": "candidate-approved-direction",
+      "notes": "问心台 3D 场景/UI 候选。用户认可整体方向；不是可分离的交互层。",
+      "sha256": "3717f00ece7406c447830910caeacd7210d41d6873d7b0a1652028a8d64ffdba",
+      "format": "PNG",
+      "resolution": [
+        1672,
+        941
+      ],
+      "mode": "RGB"
+    },
+    {
+      "source": "a_highly_detailed_whimsical_3d_cute_fantasy_chi.png",
+      "relative_path": "assets/scenes/02_wenxintai/wenxintai_v04_ui_variant.png",
+      "group": "scene-02",
+      "status": "candidate-approved-direction",
+      "notes": "问心台 3D 场景/UI 候选。用户认可整体方向；不是可分离的交互层。",
+      "sha256": "7dedd8b279a1daab2a89604b211dc1ef986feddd8ba45575e6cb900280df5dda",
+      "format": "PNG",
+      "resolution": [
+        1672,
+        941
+      ],
+      "mode": "RGB"
+    },
+    {
+      "source": "a_richly_detailed_cute_3d_cgi_styled_fantasy_thi.png",
+      "relative_path": "assets/scenes/03_guanguage/guanguage_v01_reading_scene.png",
+      "group": "scene-03",
+      "status": "candidate",
+      "notes": "观卦阁解读界面预览，画面上的卦辞及爻图仅为示例，不可直接用于生产计算。",
+      "sha256": "2f0160112fc7827ded8f966b548c004668a05a7fd0886cbbe80fe37ec3411d47",
+      "format": "PNG",
+      "resolution": [
+        1672,
+        941
+      ],
+      "mode": "RGB"
+    },
+    {
+      "source": "a_3x3_grid_cartoon_3d_rendered_cute_mascot_animati.png",
+      "relative_path": "assets/characters/motion_experiments/xiaogua/xiaogua_jump_sheet_v01.png",
+      "group": "xiaogua-motion",
+      "status": "motion-reference",
+      "notes": "小卦跳跃/翘脚/挥手分镜预览；并非透明可直接播放的独立角色序列。",
+      "sha256": "dec6fb26d053db65e3fd96c8b63c90b4722fb2e697b6fb484a9f37b6c5d98cdd",
+      "format": "GIF",
+      "frame_count": 9,
+      "resolution": [
+        508,
+        337
+      ],
+      "transparency": true
+    },
+    {
+      "source": "a_highly_detailed_3_3_collage_spritesheet_animat.png",
+      "relative_path": "assets/characters/motion_experiments/xiaogua/xiaogua_jump_sheet_v02.png",
+      "group": "xiaogua-motion",
+      "status": "motion-reference",
+      "notes": "小卦跳跃/翘脚/挥手分镜预览；并非透明可直接播放的独立角色序列。",
+      "sha256": "c60b38597f17cb1ce05909c0569500a44d6701f32637a281e327dbe5a528ea62",
+      "format": "GIF",
+      "frame_count": 9,
+      "resolution": [
+        508,
+        337
+      ],
+      "transparency": true
+    },
+    {
+      "source": "a_cute_high_quality_3d_cg_style_3_3_storyboard_sp.png",
+      "relative_path": "assets/characters/motion_experiments/xiaogua/xiaogua_jump_sheet_v03.png",
+      "group": "xiaogua-motion",
+      "status": "motion-reference",
+      "notes": "小卦跳跃/翘脚/挥手分镜预览；并非透明可直接播放的独立角色序列。",
+      "sha256": "4dd46a14303ecb52802bda2c12ec1b68ff7974fa64c97506eeace207e1fded11",
+      "format": "GIF",
+      "frame_count": 9,
+      "resolution": [
+        508,
+        337
+      ],
+      "transparency": true
+    },
+    {
+      "source": "a_3x3_spritesheet_style_illustration_nine_equal_p.png",
+      "relative_path": "assets/characters/motion_experiments/xiaogua/xiaogua_jump_sheet_v04.png",
+      "group": "xiaogua-motion",
+      "status": "motion-reference",
+      "notes": "小卦跳跃/翘脚/挥手分镜预览；并非透明可直接播放的独立角色序列。",
+      "sha256": "868922047cebf212971d9d684ce9796f39fbc45ff711c7d058f85e3f8ff02d11",
+      "format": "GIF",
+      "frame_count": 9,
+      "resolution": [
+        508,
+        337
+      ],
+      "transparency": true
+    },
+    {
+      "source": "a_cute_highly_detailed_3x3_spritesheet_3_rows.png",
+      "relative_path": "assets/characters/motion_experiments/yunyao/yunyao_style_experiment_v01.png",
+      "group": "yunyao-motion",
+      "status": "concept-experiment",
+      "notes": "云爻动作/造型探索；设计细节有漂移，正式角色以 v1 定稿图为准。",
+      "sha256": "8ad30b5551718543c71fb1be0fb8f2393336f17f09d3fe79b779562518a386d5",
+      "format": "GIF",
+      "frame_count": 9,
+      "resolution": [
+        478,
+        358
+      ],
+      "transparency": true
+    },
+    {
+      "source": "a_cute_pastel_high_detail_3x3_grid_sticker_sprit.png",
+      "relative_path": "assets/characters/motion_experiments/yunyao/yunyao_style_experiment_v02.png",
+      "group": "yunyao-motion",
+      "status": "concept-experiment",
+      "notes": "云爻动作/造型探索；设计细节有漂移，正式角色以 v1 定稿图为准。",
+      "sha256": "bf2d8119d652335aad939fe74061b2a774d523f48a2b2cf491a2c2f4808de787",
+      "format": "GIF",
+      "frame_count": 9,
+      "resolution": [
+        478,
+        358
+      ],
+      "transparency": true
+    },
+    {
+      "source": "a_bright_cute_high_quality_3d_cgi_illustration_i.png",
+      "relative_path": "assets/characters/motion_experiments/yunyao/yunyao_style_experiment_v03.png",
+      "group": "yunyao-motion",
+      "status": "concept-experiment",
+      "notes": "云爻动作/造型探索；设计细节有漂移，正式角色以 v1 定稿图为准。",
+      "sha256": "07f2ded9ddf0329d0db673ddfe6eeeaae41b904ba296fea491497dd402dd2ed1",
+      "format": "GIF",
+      "frame_count": 9,
+      "resolution": [
+        438,
+        389
+      ],
+      "transparency": true
+    },
+    {
+      "source": "问山_云爻_浮动互动预览.gif",
+      "relative_path": "assets/characters/motion_previews/yunyao/yunyao_hover_preview.gif",
+      "group": "yunyao-motion",
+      "status": "usable-preview",
+      "notes": "基于云爻原图做的浮动/摇摆预览，可能带背景；不是最终透明3D动画。",
+      "sha256": "c90a6c1a3e58ea7367436466b4b44033deed789c6ecaa3f77ffd19427dfc0de0",
+      "format": "GIF",
+      "frame_count": 16,
+      "resolution": [
+        768,
+        512
+      ],
+      "transparency": false
+    },
+    {
+      "source": "问山_云爻_预览关键帧.png",
+      "relative_path": "assets/characters/motion_experiments/yunyao/yunyao_preview_keyframes.png",
+      "group": "yunyao-motion",
+      "status": "reference",
+      "notes": "早期关键帧视觉参考。",
+      "sha256": "faac5791b612213328881a53fbd90f2fe0784a72814c3a0220c845c1c0df7990",
+      "format": "PNG",
+      "resolution": [
+        768,
+        512
+      ],
+      "mode": "RGB"
+    },
+    {
+      "source": "问山_青朴_弹跳浮动预览.gif",
+      "relative_path": "assets/characters/motion_previews/qingpu/qingpu_jump_preview.gif",
+      "group": "qingpu-motion",
+      "status": "usable-preview",
+      "notes": "青朴保留叶帽和水滴的弹跳动态预览。",
+      "sha256": "3b0fdff3e9362c08697ee53918397b54d4b411e5d73ad98c731ba77eed524b7d",
+      "format": "GIF",
+      "frame_count": 16,
+      "resolution": [
+        640,
+        500
+      ],
+      "transparency": false
+    },
+    {
+      "source": "问山_青朴_透明动画.gif",
+      "relative_path": "assets/characters/motion_previews/qingpu/qingpu_transparent_preview.gif",
+      "group": "qingpu-motion",
+      "status": "usable-preview",
+      "notes": "青朴透明背景动画，基础平移/回弹；尚未实现完整翘脚和挥手。",
+      "sha256": "1c437fe470dc0e6aa896633a436028ebc3a6fb5eb6b62acacf62b151aa05d1d8",
+      "format": "GIF",
+      "frame_count": 16,
+      "resolution": [
+        640,
+        500
+      ],
+      "transparency": true
+    },
+    {
+      "source": "问山_青朴_透明角色原图.png",
+      "relative_path": "assets/characters/motion_previews/qingpu/qingpu_transparent_character.png",
+      "group": "qingpu-motion",
+      "status": "usable-preview",
+      "notes": "从定稿提取的青朴透明素材，建议对复杂边缘再做人工检查。",
+      "sha256": "1f864554378f5b0722f27011475e6c371ed5fdd8d80385ea4519c1e246979fbb",
+      "format": "PNG",
+      "resolution": [
+        470,
+        385
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "source": "a_highly_detailed_cute_3d_cgi_3x3_storyboard_spri.png",
+      "relative_path": "assets/characters/motion_experiments/xuanji/xuanji_jump_sheet_v01.png",
+      "group": "xuanji-motion",
+      "status": "motion-reference",
+      "notes": "玄机3D翘脚弹跳分镜；保留黑色团子和金色轨道，但与最初定稿细节略有区别。",
+      "sha256": "14ce867638ef9ba7405e0afa2b0b22339aeea9ba28bdd87985c074fa52a6e68d",
+      "format": "GIF",
+      "frame_count": 9,
+      "resolution": [
+        439,
+        386
+      ],
+      "transparency": true
+    },
+    {
+      "source": "问山_玄机_弹跳互动预览.gif",
+      "relative_path": "assets/characters/motion_previews/xuanji/xuanji_jump_preview.gif",
+      "group": "xuanji-motion",
+      "status": "usable-preview",
+      "notes": "从9格分镜裁切制作的可循环 GIF，预览分辨率有限，带场景背景。",
+      "sha256": "fa51afc47b2cde46147352600b9b93f1460fc2f0509e30b1061836bb8a41dc29",
+      "format": "GIF",
+      "frame_count": 9,
+      "resolution": [
+        570,
+        500
+      ],
+      "transparency": false
+    },
+    {
+      "source": "cloud_crop.png",
+      "relative_path": "assets/_misc_references/cloud_crop_experiment.png",
+      "group": "scratch",
+      "status": "reference-only",
+      "notes": "云爻裁剪技术实验，非正式交付素材。",
+      "sha256": "dace8e2478edb80b8883d0bf284de78117731563ffaea5bb09016fdc4aa25ac0",
+      "format": "PNG",
+      "resolution": [
+        768,
+        512
+      ],
+      "mode": "RGB"
+    },
+    {
+      "source": "cloud_testcut.png",
+      "relative_path": "assets/_misc_references/cloud_testcut_experiment.png",
+      "group": "scratch",
+      "status": "reference-only",
+      "notes": "云爻裁剪技术实验，非正式交付素材。",
+      "sha256": "72cea57f35f7dfec05c64ac980ad566c94cd7f61cdf31ee72d88779cb1849901",
+      "format": "PNG",
+      "resolution": [
+        768,
+        512
+      ],
+      "mode": "RGBA"
+    }
+  ]
+}

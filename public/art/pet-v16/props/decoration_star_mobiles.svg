@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="星光挂饰"><defs>
+<radialGradient id="gold"><stop stop-color="#fff4c8"/><stop offset=".64" stop-color="#e4b567"/><stop offset="1" stop-color="#a96d3a"/></radialGradient>
+<linearGradient id="wood" x2="0" y2="1"><stop stop-color="#d6ad70"/><stop offset="1" stop-color="#9a6941"/></linearGradient>
+<linearGradient id="jade" x2="1" y2="1"><stop stop-color="#d8edbd"/><stop offset="1" stop-color="#77a56f"/></linearGradient>
+<linearGradient id="cloud" x2="1" y2="1"><stop stop-color="#fffefd"/><stop offset="1" stop-color="#c9dbf4"/></linearGradient>
+<linearGradient id="night" x2="1" y2="1"><stop stop-color="#555875"/><stop offset="1" stop-color="#232943"/></linearGradient>
+<filter id="shadow"><feGaussianBlur stdDeviation="9"/></filter><filter id="soft"><feGaussianBlur stdDeviation="2.4"/></filter></defs>
+<ellipse cx="256" cy="452" rx="138" ry="22" fill="#554833" opacity=".18" filter="url(#shadow)"/>
+
+<path d="M257 89v63M150 152h214M171 152v97M257 152v156M343 152v98" fill="none" stroke="#b88c60" stroke-width="9" stroke-linecap="round"/>
+<path d="m171 246 15 31 35 5-25 23 6 35-31-15-31 15 7-35-26-23 35-5Z" fill="url(#gold)" stroke="#a77944" stroke-width="6"/>
+<path d="m257 291 11 23 26 4-19 18 4 26-22-12-23 12 4-26-18-18 25-4Z" fill="url(#gold)" stroke="#a77944" stroke-width="5"/>
+<circle cx="343" cy="278" r="34" fill="#efd69d" stroke="#a77944" stroke-width="6"/>
+<path d="M350 250a30 30 0 0 0-3 56 30 30 0 1 1 3-56Z" fill="#bc9d68"/></svg>

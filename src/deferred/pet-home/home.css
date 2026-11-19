@@ -1,0 +1,45 @@
+.home-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, 325px); gap: 16px; }
+.home-scene { min-height: clamp(390px, 39vw, 500px); }
+.room-background { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+.home-scene::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(0deg, #241c188d, transparent 67%); }
+.room-pet { position: absolute; inset: auto 0 10%; display: grid; justify-items: center; gap: 6px; z-index: 2; }
+.room-pet .pet-figure { width: clamp(170px, 26vw, 315px); z-index: 2; filter: drop-shadow(0 12px 18px #2a1c1850); }
+.room-shadow { position: absolute; width: 26%; height: 17%; border-radius: 50%; bottom: -1%; filter: blur(12px); background: #1b110f68; }
+.room-xiaogua .room-pet { left: 15%; }
+.room-decor { left: 0; right: 0; top: 20%; z-index: 1; position: absolute; color: #ffded0; font-size: 32px; text-align: center; text-shadow: 0 0 15px #fff3ca; animation: drift 4s ease-in-out infinite alternate; }
+.decor-starlight .room-decor { color: #ffffcd; }
+.speech-bubble {
+  position: relative; z-index: 2; font-size: 13px; padding: 7px 12px; border-radius: 8px; color: #403025; background: #fff2dedf;
+  border: 1px solid #e6cfab; box-shadow: 0 3px 10px #412a2357; margin-bottom: 7px;
+}
+.speech-bubble::after { content: ""; width: 6px; height: 6px; transform: rotate(45deg); position: absolute; bottom: -3px; left: 50%; background: #fff2de; border: solid #e6cfab; border-width: 0 1px 1px 0; }
+.care-card { padding: 21px; }
+.level-tag { background: #eaece1; color: var(--sage); padding: 4px 9px; border-radius: 6px; font-size: 12px; font-weight: 740; }
+.pet-stats { display: grid; margin-top: 14px; }
+.pet-stats div { display: flex; justify-content: space-between; gap: 6px; padding: 7px 0; border-bottom: 1px solid #eae1d3; }
+.pet-stats div:last-child { border: 0; }
+.pet-stats dt { color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.pet-stats dt svg { color: var(--sage); }
+.pet-stats dd { font-weight: 680; }
+.growth-progress { width: 100%; height: 8px; border-radius: 8px; display: block; appearance: none; border: 0; overflow: hidden; background: #e8ded0; accent-color: #728160; }
+.growth-progress::-webkit-progress-bar { background: #e8ded0; }
+.growth-progress::-webkit-progress-value { background: #728160; border-radius: 6px; }
+.growth-progress::-moz-progress-bar { background: #728160; }
+.care-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 17px; }
+.care-actions .button { padding-inline: 5px; min-height: 42px; font-size: 12px; }
+.decor-button { display: flex; gap: 6px; align-items: center; background: transparent; color: var(--rust); border: 0; padding: 10px 0 0; margin-top: 11px; border-top: 1px solid var(--border); width: 100%; font-size: 13px; }
+.decor-button svg:last-child { margin-left: auto; }
+.decor-button:hover { text-decoration: underline; }
+.decoration-list { display: grid; gap: 7px; }
+.decoration-list button { width: 100%; display: flex; justify-content: space-between; align-items: center; background: #f7f0e4; border: 1px solid var(--border); border-radius: 8px; padding: 10px; }
+.decoration-list button[aria-pressed=true] { border-color: #bc8066; }
+.decoration-list button:disabled { opacity: .65; }
+.decoration-list button span, .decoration-list button small { display: flex; gap: 5px; align-items: center; }
+.empty-home { padding: 28px; text-align: center; color: var(--muted); }
+
+@media (max-width: 740px) {
+  .home-grid { grid-template-columns: minmax(0,1fr); gap: 10px; }
+  .home-scene { min-height: clamp(257px, 67vw, 370px); }
+  .room-pet .pet-figure { width: clamp(146px, 47vw, 256px); }
+  .care-card { padding: 16px; }
+}

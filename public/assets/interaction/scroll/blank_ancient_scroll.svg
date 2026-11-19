@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1040" viewBox="0 0 1800 1040">
+<defs>
+ <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff4dd"/><stop offset=".28" stop-color="#f7e3c4"/><stop offset=".72" stop-color="#ecd0a0"/><stop offset="1" stop-color="#d5b483"/></linearGradient>
+ <radialGradient id="paperlight" cx=".46" cy=".37" r=".72"><stop stop-color="#fffaf0" stop-opacity=".91"/><stop offset=".65" stop-color="#ffefcd" stop-opacity=".20"/><stop offset="1" stop-color="#8e623c" stop-opacity=".09"/></radialGradient>
+ <linearGradient id="rod" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#704323"/><stop offset=".15" stop-color="#ca9b59"/><stop offset=".34" stop-color="#f5d897"/><stop offset=".57" stop-color="#9e6538"/><stop offset=".8" stop-color="#f2c77e"/><stop offset="1" stop-color="#704323"/></linearGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2=".5" y2="1"><stop stop-color="#fff2c6"/><stop offset=".3" stop-color="#dcae60"/><stop offset=".6" stop-color="#a87738"/><stop offset="1" stop-color="#f3cf8c"/></linearGradient>
+ <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#7b4624" stop-opacity=".55"/><stop offset=".14" stop-color="#d0a271" stop-opacity=".02"/><stop offset=".86" stop-color="#bd9255" stop-opacity=".03"/><stop offset="1" stop-color="#6b3f24" stop-opacity=".6"/></linearGradient>
+ <radialGradient id="gem"><stop stop-color="#fff7cf"/><stop offset=".5" stop-color="#f1c975"/><stop offset="1" stop-color="#a46a32"/></radialGradient>
+</defs>
+<!-- scroll body -->
+<path d="M213 165 Q900 146 1587 165 Q1540 500 1587 864 Q900 889 213 864 Q259 517 213 165Z" fill="#6e472c" opacity=".17" transform="translate(8 14)"/>
+<path d="M212 164 Q900 145 1588 164 Q1559 505 1588 864 Q900 886 212 864 Q237 504 212 164Z" fill="url(#paper)" stroke="#bd925b" stroke-width="8"/>
+<path d="M212 164 Q900 145 1588 164 Q1559 505 1588 864 Q900 886 212 864 Q237 504 212 164Z" fill="url(#paperlight)"/>
+<path d="M238 196 Q900 179 1562 196 Q1539 513 1562 831 Q900 851 238 831 Q260 514 238 196Z" fill="none" stroke="#c69b63" stroke-width="5" opacity=".8"/>
+<path d="M262 216 Q900 201 1538 216 M262 813 Q900 831 1538 813" fill="none" stroke="#fff5d7" stroke-width="5" opacity=".75"/>
+<rect x="206" y="163" width="1388" height="703" fill="url(#edge)" opacity=".35"/>
+<!-- corner ornaments -->
+<g fill="none" stroke="#c59a5f" stroke-width="7" opacity=".58" stroke-linecap="round">
+<path d="M304 261 c28 -22 52 -10 54 9 c2 23 -31 34 -41 13 c-13 -28 30 -69 72 -44 c36 20 65 13 81 -7"/>
+<path d="M1496 261 c-28 -22 -52 -10 -54 9 c-2 23 31 34 41 13 c13 -28 -30 -69 -72 -44 c-36 20 -65 13 -81 -7"/>
+<path d="M304 773 c28 22 52 10 54 -9 c2 -23 -31 -34 -41 -13 c-13 28 30 69 72 44 c36 -20 65 -13 81 7"/>
+<path d="M1496 773 c-28 22 -52 10 -54 -9 c-2 -23 31 -34 41 -13 c13 28 -30 69 -72 44 c-36 -20 -65 -13 -81 7"/>
+</g>
+<!-- mountains watermark on bottom -->
+<path d="M520 796 l100 -94 44 38 97 -98 95 120 76 -58 65 88 106 -96 81 100 Z" fill="#9a9d91" opacity=".075"/>
+<!-- ornate horizontal rod left -->
+<rect x="164" y="117" width="86" height="795" rx="36" fill="url(#rod)" stroke="#906038" stroke-width="8"/>
+<rect x="151" y="102" width="112" height="42" rx="14" fill="url(#gold)" stroke="#a36b30" stroke-width="5"/>
+<rect x="151" y="880" width="112" height="42" rx="14" fill="url(#gold)" stroke="#a36b30" stroke-width="5"/>
+<g stroke="#f9dd9b" stroke-width="4" opacity=".55"><path d="M189 154 V876"/><path d="M220 154 V876"/></g>
+<!-- ornate rod right -->
+<rect x="1550" y="117" width="86" height="795" rx="36" fill="url(#rod)" stroke="#906038" stroke-width="8"/>
+<rect x="1537" y="102" width="112" height="42" rx="14" fill="url(#gold)" stroke="#a36b30" stroke-width="5"/>
+<rect x="1537" y="880" width="112" height="42" rx="14" fill="url(#gold)" stroke="#a36b30" stroke-width="5"/>
+<g stroke="#f9dd9b" stroke-width="4" opacity=".55"><path d="M1577 154 V876"/><path d="M1607 154 V876"/></g>
+<!-- hanging tassels -->
+<path d="M204 925 Q192 954 203 979" stroke="#c39964" fill="none" stroke-width="7"/><circle cx="204" cy="940" r="13" fill="url(#gem)"/><path d="M195 958 L187 999 M202 958 L201 1008 M209 958 L216 999" stroke="#ad6245" stroke-width="7" stroke-linecap="round"/>
+<path d="M1595 925 Q1584 954 1594 979" stroke="#c39964" fill="none" stroke-width="7"/><circle cx="1594" cy="940" r="13" fill="url(#gem)"/><path d="M1585 958 L1576 999 M1593 958 L1593 1008 M1601 958 L1610 999" stroke="#ad6245" stroke-width="7" stroke-linecap="round"/>
+</svg>
