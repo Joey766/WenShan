@@ -4,7 +4,7 @@
 
 2026-11-20 已执行用户批准的 `20261120000100`（可选个人资料列）和 `20261120000200`（登录挑战表）。已复查正式库迁移清单、行级安全和运行角色权限。加密备份与验证见[云端部署状态](CLOUD_DEPLOYMENT_STATUS.md)。正式 Supabase 项目是 `qbcbtarlmgzmfbhkitig`，Preview 是 `zribhqvanbrfipchjgkg`。不要重复执行迁移。
 
-下一步等用户保存正式项目的 Custom SMTP。随后用真实收件地址验收注册、密码登录、登录验证码、找回密码、账号隔离和 Gemini 流式解卦，再按当前授权首次公开发布。正式公开注册仍关闭，Production 追踪仍指向 `release/production-hold`。已有 Gemini Sensitive 变量覆盖两个环境。发布前核对 `main`、公开访问、生产密钥及数据源。五天换宠延后。
+2026-11-20 v1.0 已正式公开。入口为 [问山](https://project-0h873.vercel.app)，Vercel 追踪 `main` 并启用正式域名自动更新。正式 SMTP 已完成真实邮件验收，公开注册现已开启并要求验证邮箱。已验证正式账号隔离、公开网页资料保存和 Gemini 流式解卦。五天换宠延后。日常修改走开发分支和受保护 Preview，下一次正式发布依然需要用户明确指令。
 
 登录代码延续 `dev/profile-personalization`，混合模式是 `WENSHAN_ACCOUNT_AUTH=password-or-email-code`。注册需要密码和确认验证码，登录在密码或已注册邮箱验证码中任选一种，刷新复用已有会话。问心台选填背景常显。个人资料授权逐卦默认关闭，开启时可逐项调整发送给 Gemini 的资料；时间与背景可改到提交解卦前。
 
@@ -12,7 +12,7 @@
 
 2026-11-20 Supabase 和 Vercel CLI 均已完成用户授权。两个 Free 项目已完成各自的数据库迁移。早期受保护 [Preview](https://wenshan-b4rvhvnlh-joey766s-projects.vercel.app) 已通过真实 A/B 和 Gemini 测试。当前 Windows 用户可从凭据管理器复用 `WenShan/Supabase/wenshan-preview/` 和 `WenShan/Supabase/wenshan-production/` 下的数据库凭据。
 
-上线进度见 [云端部署状态](CLOUD_DEPLOYMENT_STATUS.md) 与 [发布与恢复手册](RELEASE_RUNBOOK.md)。`dev/launch-readiness` 的 Git 提交 `75708c1` 已包含 TLS CA 修复，Git 触发的 [Preview](https://wenshan-7yunbiguo-joey766s-projects.vercel.app) 已通过实际健康检查。长期日常改动在验证后可自动推送开发分支，合并 `main` 仍须用户明确要求。邮箱验证码登录在 `dev/email-code-login`，待有可用 SMTP 后按手册完成试送，再启用验证码模式。正式库迁移须独立批准，正式发布仍暂停。
+上线进度见 [云端部署状态](CLOUD_DEPLOYMENT_STATUS.md) 与 [发布与恢复手册](RELEASE_RUNBOOK.md)。`dev/launch-readiness` 的 Git 提交 `75708c1` 已包含 TLS CA 修复，Git 触发的 [Preview](https://wenshan-7yunbiguo-joey766s-projects.vercel.app) 已通过实际健康检查。长期日常改动在验证后可自动推送开发分支，合并 `main` 仍须用户明确要求。旧的 `dev/email-code-login` 已整合到 v1.0。未来新增正式库迁移仍须单独批准。
 
 当前为 v1.6。三幕问卦、知识库和本地解读继续使用现有实现，并增加真实账号、一人一宠、`/pet-home` 四主题小屋及轻量成长。旧版饥饿和切宠逻辑仍归档在 `src/deferred/pet-home/`。当前范围、账号安全和测试证据见 [v1.6 集成报告](PET_V16_INTEGRATION_REPORT.md)。
 

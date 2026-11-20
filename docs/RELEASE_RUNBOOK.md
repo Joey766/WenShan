@@ -1,6 +1,6 @@
 # 问山发布与恢复手册
 
-当前实际配置见 [云端部署状态](CLOUD_DEPLOYMENT_STATUS.md)。Hobby 项目现已启用 Vercel Authentication 的 Standard Protection，临时生产追踪为 `release/production-hold`，生产域名自动分配关闭。GitHub 开发分支可直接走 Preview。Vercel 要求所填生产分支实际存在，首次生产条件未齐时保留停放分支。
+当前实际配置见 [云端部署状态](CLOUD_DEPLOYMENT_STATUS.md)。问山 v1.0 已通过 [正式域名](https://project-0h873.vercel.app) 公开访问。Vercel 保留 Standard Protection，开发分支自动生成受保护的 Preview。`main` 为 GitHub 默认分支和 Vercel 正式追踪分支，合并后自动更新同一正式域名。
 
 ## 环境隔离
 
@@ -14,7 +14,7 @@ Vercel 云函数内的文件路径无法代替持久化数据库。Ollama 只连
 
 ## 所需服务和一次性配置
 
-1. **GitHub**。用户授权后创建或选择仓库，审查首次导入内容及版权。有了首个提交后建立 `main` 基线；以后 Codex 的日常修改只提交到独立 `dev/*` 分支。在 `.github/CODEOWNERS` 用 `* @账号名` 把用户的真实 GitHub 账号设为全仓库审阅人。在 `main` 保护中要求 PR、代码所有者批准、`build-unit-browser` 通过以及分支跟进基线，开启新提交作废旧批准，禁止直接推送、强推和删除，禁止绕过保护，关闭自动合并。由用户本人完成最终确认与合并。若私有仓库的方案缺少分支保护能力，先由用户决定选型，再启用自动正式发布。提 PR 的身份须与审批人区分。 [GitHub 分支保护与计划](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)
+1. **GitHub**。用户授权后创建或选择仓库，审查首次导入内容及版权。有了首个提交后建立 `main` 基线；以后 Codex 的日常修改只提交到独立 `dev/*` 分支。在 `.github/CODEOWNERS` 用 `* @账号名` 把用户的真实 GitHub 账号设为全仓库审阅人。在 `main` 保护中要求 PR、代码所有者批准、`build-unit-browser` 通过以及分支跟进基线，启用新提交作废旧批准，禁止直接推送、强推和删除，禁止绕过保护，关闭 GitHub 自动合并。必须由用户明确确认发布，获准后可由 Codex 合并已验收版本。当前私库套餐未强制执行计划中的分支保护，发布批准由操作流程记录。 [GitHub 分支保护与计划](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)
 2. **Vercel**。导入同一个仓库，框架选 Next.js，Production Branch 设为 `main`，启用正式域名的自动分配。Preview 与 Production 分别填写变量。把 Functions 区域与正式数据库选在相邻区域。连接已有 `main` 可能触发首个生产部署，须在首次发布获用户明确确认后执行。授权前可在本机验收，以后只打开 PR 生成的 Preview 网址。个人非商业用途可评估 Hobby；计划或条款不符时由用户决定。 [Vercel Git 部署](https://vercel.com/docs/git) · [Hobby 适用范围](https://vercel.com/docs/plans/hobby)
 3. **Supabase 与邮件**。准备互相隔离的 Preview、Production 项目。配置 Email + Password 与 Confirm Email，分别在确认注册和重置密码模板显示 `{{ .Token }}`，用户在问山输入收到的对应验证码。上线前配置经用户同意的 SMTP 和发件域，验证 SPF、DKIM、DMARC、两个非团队收件地址、注册与密码重置投递。Supabase 的默认 SMTP 只适合团队内测试。 [确认邮件模板](https://supabase.com/docs/guides/auth/auth-email-templates) · [自定义 SMTP](https://supabase.com/docs/guides/auth/auth-smtp)
 4. **PostgreSQL 权限**。管理员在执行迁移后为已存在的 `wenshan_runtime` 开启登录并设置随机独立密码。用安全的交互式 `psql` 会话执行 `ALTER ROLE wenshan_runtime LOGIN;`，接着用 `\password wenshan_runtime` 输入密码。应用连接字符串使用 Supavisor 的事务池（端口 6543、用户名 `wenshan_runtime.<project-ref>`），启用证书验证。管理员连接只在备份和迁移时使用；不要在 Vercel 设置。应用用事务级角色和自定义 owner，查询不使用命名 prepared statement。 [Supabase 数据库连接](https://supabase.com/docs/guides/database/connecting-to-postgres)
@@ -53,9 +53,9 @@ Vercel 云函数内的文件路径无法代替持久化数据库。Ollama 只连
 
 ## 修改 → 预览 → 验收 → 发布
 
-首次公开发布须满足线上验收条件、数据库迁移的独立批准和用户明确发布指令。保留受保护的 Preview，生产放行变量保持缺省。首次发布获准后再建立 `main`、设置 Production Branch 并启用生产放行。后续每次正式发布仍须用户明确确认。 [Vercel 生产分支规则](https://vercel.com/docs/git) · [Vercel 构建门控](https://vercel.com/docs/project-configuration/project-settings#ignored-build-step)
+后续每次正式发布须满足线上验收条件和用户明确指令。涉及正式数据库迁移时须取得相应独立批准。保留受保护的 Preview，与 Production 保持配置和数据隔离。生产门控仅接受 `main` 且正式放行配置有效的版本。 [Vercel 生产分支规则](https://vercel.com/docs/git) · [Vercel 构建门控](https://vercel.com/docs/project-configuration/project-settings#ignored-build-step)
 
-1. 日常功能修改在独立开发分支进行。`main` 建立后，以它为基线开分支。首次发布前，现有上线准备可沿用 `dev/launch-readiness`。
+1. 日常功能修改在独立开发分支进行。以最新的 `main` 为基线开分支。
 2. 自动执行 `npm test`、`npm run build`、`npm run typecheck` 和适用的浏览器检查。测试通过后按用户的持续授权推送开发分支到私有 GitHub 仓库，触发 GitHub Actions 和 Vercel Git Preview。
 3. 等 Preview 就绪后核对部署提交 SHA、`/api/health` 和改动涉及的功能，向用户交付本次实际验证过的受保护网址、结果和迁移影响。
 4. 有数据库改动时，先审查版本化迁移，在独立 Preview 实测新旧版本兼容与恢复，验证备份后取得正式迁移批准。生产库沿用原项目，更新时保留账户、灵宠和历史数据。
