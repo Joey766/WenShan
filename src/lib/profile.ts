@@ -8,9 +8,8 @@ export type Profile = { birth: string; gender: Gender; custom: string; consent: 
   role?: typeof roles[number] | "" };
 export const emptyProfile: Profile = { birth: "", gender: "undisclosed", custom: "", consent: false };
 export const ageBands = ["未满18岁", "18至24岁", "25至39岁", "40至59岁", "60岁以上"] as const;
-export type ProfileContext = { ageBand?: typeof ageBands[number]; expression?: string; role?: typeof roles[number] };
-export const profileCategories = ["ageBand", "expression", "role"] as const;
-export type ProfileCategory = typeof profileCategories[number];
+export type ProfileContext = { ageBand?: typeof ageBands[number]; expression?: string; role?: typeof roles[number];
+  nickname?: string; birth?: string; calendar?: "solar" | "lunar"; leapMonth?: boolean; birthTime?: string; city?: string };
 
 export function localDate(now = new Date()) {
   return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
@@ -81,12 +80,31 @@ export function modelProfile(profile: Profile, today = localDate()): ProfileCont
   return ageBand || expression ? { ageBand, expression } : undefined;
 }
 
-export function selectedProfile(profile: Profile, categories: ProfileCategory[], today = localDate()): ProfileContext | undefined {
-  const birthday = categories.includes("ageBand") ? gregorianBirth(profile, today) : undefined;
-  const summary = modelProfile({ ...profile, birth: birthday ?? "", consent: true }, today);
-  const result: ProfileContext = {};
-  if (categories.includes("ageBand") && summary?.ageBand) result.ageBand = summary.ageBand;
-  if (categories.includes("expression") && summary?.expression) result.expression = summary.expression;
-  if (categories.includes("role") && profile.role) result.role = profile.role;
+export function sharedProfile(profile: Profile, today = localDate()): ProfileContext | undefined {
+  const birthday = gregorianBirth(profile, today);
+  const result: ProfileContext = { ...modelProfile({ ...profile, birth: birthday ?? "", consent: true }, today) };
+  if (profile.nickname) result.nickname = profile.nickname;
+  if (profile.role) result.role = profile.role;
+  if (profile.city) result.city = profile.city;
+  if (profile.birthTime) result.birthTime = profile.birthTime;
+  if (birthday) {
+    result.birth = profile.birth;
+    result.calendar = profile.calendar === "lunar" ? "lunar" : "solar";
+    if (result.calendar === "lunar" && profile.leapMonth) result.leapMonth = true;
+  }
   return Object.keys(result).length ? result : undefined;
+}
+
+export function validSharedProfile(input: unknown): input is ProfileContext {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return false;
+  const value = input as ProfileContext;
+  if (Object.keys(value).some(key => !["ageBand", "expression", "role", "nickname", "birth", "calendar", "leapMonth", "birthTime", "city"].includes(key))) return false;
+  const brief = (text: unknown, max: number) => text === undefined || typeof text === "string" && !!text.trim() && text.length <= max;
+  return (value.ageBand === undefined || ageBands.includes(value.ageBand)) &&
+    (value.expression === undefined || ["男", "女", "其他"].includes(value.expression)) &&
+    (value.role === undefined || roles.includes(value.role)) && brief(value.nickname, 32) && brief(value.city, 60) &&
+    (value.birthTime === undefined || typeof value.birthTime === "string" && validBirthTime(value.birthTime)) &&
+    (value.calendar === undefined || ["solar", "lunar"].includes(value.calendar)) &&
+    (value.leapMonth === undefined || value.calendar === "lunar" && value.leapMonth === true) &&
+    (value.birth === undefined || typeof value.birth === "string" && !!gregorianBirth({ ...value, birth: value.birth }));
 }

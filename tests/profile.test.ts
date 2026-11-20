@@ -1,6 +1,6 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
-import { emptyProfile, gregorianBirth, modelProfile, parseProfile, selectedProfile, validBirth, validBirthTime } from "../src/lib/profile.ts";
+import { emptyProfile, gregorianBirth, modelProfile, parseProfile, sharedProfile, validBirth, validBirthTime, validSharedProfile } from "../src/lib/profile.ts";
 import { readingFocus } from "../src/lib/reading-context.ts";
 
 test("profile gates consent, omits the full birth date, and validates calendar dates", () => {
@@ -14,7 +14,7 @@ test("profile gates consent, omits the full birth date, and validates calendar d
   assert.deepEqual(parseProfile(JSON.stringify(profile)), profile);
 });
 
-test("lunar DOB validates real leap months, saves optional fields, and shares summaries only", () => {
+test("lunar DOB validates real leap months and the authorized payload preserves all filled fields", () => {
   const base = { ...emptyProfile, birth: "2023-02-01", calendar: "lunar" as const, nickname: "访客", city: "成都，中国",
     gender: "woman" as const, role: "学生" as const, birthTime: "子时" };
   assert.equal(gregorianBirth(base, "2026-11-20"), "2023-02-20");
@@ -23,8 +23,12 @@ test("lunar DOB validates real leap months, saves optional fields, and shares su
   assert.equal(gregorianBirth({ ...base, birth: "2023-12-01" }, "2026-11-20"), "2024-01-11");
   assert.deepEqual(parseProfile(JSON.stringify(base)), base);
   assert.ok(validBirthTime("23:59") && validBirthTime("午时") && !validBirthTime("24:00"));
-  assert.equal(selectedProfile(base, [], "2026-11-20"), undefined);
-  assert.deepEqual(selectedProfile(base, ["role", "ageBand"], "2026-11-20"), { ageBand: "未满18岁", role: "学生" });
+  assert.equal(sharedProfile(emptyProfile, "2026-11-20"), undefined);
+  const sharing = sharedProfile({ ...base, leapMonth: true }, "2026-11-20");
+  assert.deepEqual(sharing, { ageBand: "未满18岁", expression: "女", nickname: "访客", role: "学生", city: "成都，中国",
+    birthTime: "子时", birth: "2023-02-01", calendar: "lunar", leapMonth: true });
+  assert.ok(validSharedProfile(sharing));
+  assert.ok(!validSharedProfile({ ...sharing, phone: "should never be present" }));
 });
 
 test("validates custom dates without carrying stray user data in preset selections", () => {

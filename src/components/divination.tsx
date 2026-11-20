@@ -5,7 +5,7 @@ import { ArrowRight, CircleDot, RotateCw, SkipForward, Sparkles } from "lucide-r
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { coinFace, lineFromCoins, type Coins } from "@/lib/yijing";
 import type { Pet } from "@/lib/pets";
-import { profileCategories, selectedProfile, type Profile, type ProfileCategory } from "@/lib/profile";
+import { sharedProfile, type Profile } from "@/lib/profile";
 import { readingFocus, readingRanges, type ReadingFocus } from "@/lib/reading-context";
 import { SceneCompanion } from "./pet-art";
 import { LineBoard } from "./hexagram";
@@ -13,17 +13,15 @@ import { LineBoard } from "./hexagram";
 const CoinStage = dynamic(() => import("./coin-stage"), { ssr: false });
 const tossDuration = 1740;
 
-const categoryLabels = { ageBand: "年龄段", expression: "性别", role: "当前身份" };
-
 export function Divination({ pet, visible, question, setQuestion, casts, addCast, proceed, reduced, getCoins,
-  background, setBackground, focus, setFocus, usePersonal, setUsePersonal, categories, setCategories, profile }: {
+  background, setBackground, focus, setFocus, usePersonal, setUsePersonal, profile }: {
   pet: Pet; question: string; setQuestion: (text: string) => void; casts: Coins[];
   addCast: (result: Coins) => void; proceed: () => void; reduced: boolean;
   visible: boolean; getCoins: () => Promise<Coins>;
   background: string; setBackground: (value: string) => void;
   focus: ReadingFocus; setFocus: (value: ReadingFocus) => void;
   usePersonal: boolean; setUsePersonal: (value: boolean) => void;
-  categories: ProfileCategory[]; setCategories: (value: ProfileCategory[]) => void; profile: Profile;
+  profile: Profile;
 }) {
   const [pending, setPending] = useState<Coins>();
   const [started, setStarted] = useState<number>();
@@ -37,7 +35,7 @@ export function Divination({ pet, visible, question, setQuestion, casts, addCast
   const lastLine = last && lineFromCoins(last);
   const complete = casts.length === 6;
   const locked = casts.length > 0 || !!pending || requesting;
-  const available = usePersonal ? selectedProfile(profile, [...profileCategories]) : undefined;
+  const available = usePersonal ? sharedProfile(profile) : undefined;
 
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
 
@@ -108,12 +106,15 @@ export function Divination({ pet, visible, question, setQuestion, casts, addCast
               <label className="profile-consent"><input type="checkbox" disabled={locked} checked={usePersonal}
                 onChange={event => setUsePersonal(event.target.checked)} /> 本次解读结合我的个人资料</label>
               {usePersonal && <div className="context-ideas">
-                <p>选择要分享的摘要。确认使用 Gemini 后才会发给 Google。具体生辰、出生城市和昵称留在问山。</p>
-                {profileCategories.map(category => <label key={category} className="profile-consent">
-                  <input type="checkbox" disabled={locked || !available?.[category]} checked={categories.includes(category) && !!available?.[category]}
-                    onChange={event => setCategories(event.target.checked ? [...categories, category] : categories.filter(item => item !== category))} />
-                  {categoryLabels[category]}{available?.[category] ? ` · ${available[category]}` : " · 未填写"}
-                </label>)}
+                <p>{available ? "确认使用 Gemini 后，下方已填写的资料将一起发给 Google。" : "你还没有填写个人资料。"}</p>
+                {available && <ul>
+                  {available.nickname && <li>昵称 · {available.nickname}</li>}
+                  {available.birth && <li>出生日期 · {available.calendar === "lunar" ? "农历" : "公历"}{available.leapMonth ? "闰月 " : " "}{available.birth}</li>}
+                  {available.birthTime && <li>出生时间 · {available.birthTime}</li>}
+                  {available.city && <li>出生城市 · {available.city}</li>}
+                  {available.expression && <li>性别 · {available.expression}</li>}
+                  {available.role && <li>当前身份 · {available.role}</li>}
+                </ul>}
               </div>}
             </div>
           </details>

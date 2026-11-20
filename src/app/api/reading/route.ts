@@ -1,7 +1,7 @@
 
 import { demoReading, fortuneFromCast, preparedDetails, type ReadingEvent, type ReadingRequest, type ReadingNotice } from "@/lib/interpretation";
 import { generateGlosses, generateReading, localModel } from "@/lib/reading-generation";
-import { ageBands, roles, type ProfileContext } from "@/lib/profile";
+import { validSharedProfile, type ProfileContext } from "@/lib/profile";
 import { readingFocus } from "@/lib/reading-context";
 import { getReading, isCoins } from "@/lib/yijing";
 import { aiProvider, geminiModel, ModelError } from "@/lib/server/ai-provider";
@@ -57,12 +57,8 @@ function parseRequest(data: unknown) {
   if (!shortText(input.question, 240)) return null;
   let profile: ProfileContext | undefined;
   if (input.profile !== undefined) {
-    if (!input.profile || typeof input.profile !== "object" ||
-        Object.keys(input.profile).some(key => !["ageBand", "expression", "role"].includes(key))) return null;
-    const { ageBand, expression, role } = input.profile;
-    if ((ageBand !== undefined && !ageBands.includes(ageBand)) || (expression !== undefined && !["男", "女", "其他"].includes(expression)) ||
-        (role !== undefined && !roles.includes(role))) return null;
-    if (input.profileConsent === true) profile = { ageBand, expression, role };
+    if (!validSharedProfile(input.profile) || input.profileConsent !== true) return null;
+    profile = input.profile;
   }
   if (input.background !== undefined && (typeof input.background !== "string" || input.background.length > 480)) return null;
   const focus = readingFocus(input.focus);

@@ -7,7 +7,7 @@ import type { Message } from "@/lib/interpretation";
 import { pets, type Pet } from "@/lib/pets";
 import { getReading, tossCoins, type Coins } from "@/lib/yijing";
 import type { Progress } from "@/lib/pet-v16";
-import { selectedProfile, type ProfileCategory } from "@/lib/profile";
+import { sharedProfile } from "@/lib/profile";
 import { readingFocus, type ReadingFocus } from "@/lib/reading-context";
 import { Divination } from "./divination";
 import { Entrance } from "./entrance";
@@ -59,7 +59,6 @@ function Journey() {
   const [background, setBackground] = useState("");
   const [focus, setFocus] = useState<ReadingFocus>({ period: "不限定" });
   const [usePersonal, setUsePersonal] = useState(false);
-  const [categories, setCategories] = useState<ProfileCategory[]>([]);
   const { profile } = useProfile();
   const [casts, setCasts] = useState<Coins[]>([]);
   const [guide, setGuide] = useState<Pet>();
@@ -150,7 +149,6 @@ function Journey() {
     setBackground("");
     setFocus({ period: "不限定" });
     setUsePersonal(false);
-    setCategories([]);
     setCasts([]);
     setGuide(undefined);
     setResume(undefined);
@@ -181,7 +179,6 @@ function Journey() {
     setBackground(entry.background);
     setFocus(entry.focus ?? { period: "不限定" });
     setUsePersonal(false);
-    setCategories([]);
     setCasts(entry.casts);
     setResume(entry);
     record.current = { id: entry.id, createdAt: entry.createdAt, question: entry.question };
@@ -243,13 +240,13 @@ function Journey() {
       {currentAct < 2 && <div className="cast-host" data-visible={currentAct === 1} inert={currentAct !== 1 || opening}>
         <Divination pet={companion ?? pets[0]} visible={currentAct === 1} question={question} setQuestion={setQuestion}
           background={background} setBackground={setBackground} focus={focus} setFocus={setFocus}
-          usePersonal={usePersonal} setUsePersonal={setUsePersonal} categories={categories} setCategories={setCategories} profile={profile}
+          usePersonal={usePersonal} setUsePersonal={setUsePersonal} profile={profile}
           casts={casts} addCast={result => setCasts(items => items.length < 6 ? [...items, result] : items)}
           proceed={() => travel(2)} reduced={reduced} getCoins={getCoins} />
       </div>}
       {currentAct === 2 && companion && <ReadingScene key={resume?.id ?? "current"} pet={companion} question={question.trim()}
         context={{ background: background.trim() || undefined, focus: readingFocus(focus),
-          profile: usePersonal ? selectedProfile(profile, categories) : undefined }}
+          profile: usePersonal ? sharedProfile(profile) : undefined }}
         casts={casts} restart={restart} saved={resume?.messages} save={saveEntry} />}
       <HistoryDialog dialog={history} entries={entries} openEntry={openEntry} onClear={clearHistory} signedIn={!!account} error={historyError} />
       {passage && <div className={`cloud-passage passage-${passage}`} aria-label="场景转场">
