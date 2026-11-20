@@ -137,7 +137,9 @@ export function ReadingScene({ pet, question, casts, context, restart, saved, sa
     setTiming({ began, typical: ordered[Math.floor(ordered.length / 2)] ?? 22, measured: !!samples.length });
     clearTimeout(poseTimer.current ?? undefined);
     try {
-      const input = { question, coins: casts, ...context, cloudConsent, profileConsent: Boolean(context.profile) };
+      const input: ReadingRequest = { question, coins: casts, ...context };
+      if (cloudConsent) input.cloudConsent = true;
+      if (context.profile) input.profileConsent = true;
       if (cloudConsent) {
         await accountRequest().catch(() => undefined);
         controller.signal.throwIfAborted();
