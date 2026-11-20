@@ -4,7 +4,9 @@
 
 工作目录为 `D:\塔罗project`。四个独立素材包已经安全合并。先看 [开发进度](PROJECT_PROGRESS.md)、[素材盘点](ASSET_INVENTORY.md) 与 [使用说明](../README.md)。
 
-上线准备见 [检查报告](LAUNCH_READINESS_REPORT.md) 和 [发布与恢复手册](RELEASE_RUNBOOK.md)。本地 Git 在 `dev/launch-readiness`，首次提交、远程仓库和 Vercel 连接待用户授权。日常发布需要独立分支 Preview、CI 和用户批准，代码更新继续使用同一持久数据库。
+2026-11-20 Supabase 和 Vercel CLI 均已完成用户授权。两个 Free 项目已创建，仅 Preview 已迁移和配置。当前受保护 [Preview](https://wenshan-b4rvhvnlh-joey766s-projects.vercel.app) 已通过真实 A/B 和 Gemini 测试。当前 Windows 用户可从凭据管理器复用 `WenShan/Supabase/wenshan-preview/` 和 `WenShan/Supabase/wenshan-production/` 下的数据库凭据。测试账号、自动化临时访问凭据和 CLI 自动生成的 `.env.local` 已清理。
+
+上线进度见 [云端部署状态](CLOUD_DEPLOYMENT_STATUS.md) 与 [发布与恢复手册](RELEASE_RUNBOOK.md)。`dev/launch-readiness` 的 Git 提交 `75708c1` 已包含 TLS CA 修复，Git 触发的 [Preview](https://wenshan-7yunbiguo-joey766s-projects.vercel.app) 已通过实际健康检查。长期日常改动在验证后可自动推送开发分支，合并 `main` 仍须用户明确要求。邮箱验证码登录在 `dev/email-code-login`，待有可用 SMTP 后按手册完成试送，再启用验证码模式。正式库迁移须独立批准，正式发布仍暂停。
 
 当前为 v1.6。三幕问卦、知识库和本地解读继续使用现有实现，并增加真实账号、一人一宠、`/pet-home` 四主题小屋及轻量成长。旧版饥饿和切宠逻辑仍归档在 `src/deferred/pet-home/`。当前范围、账号安全和测试证据见 [v1.6 集成报告](PET_V16_INTEGRATION_REPORT.md)。
 

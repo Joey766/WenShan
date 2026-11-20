@@ -1,5 +1,22 @@
 # 问山开发进度
 
+## 2026-11-20 Git 自动预览与验证码登录准备
+
+- 开发分支 `75708c1` 包含数据库 TLS 修复和长期发布规范。Vercel 已从 Git 自动构建该提交，真实 `/api/health` 确认 Supabase 可用。
+- 已实现邮箱发送验证码、验证后登录或首次建号，以及使用同一账号验证码确认删除。Next.js 构建、TypeScript、26 项单元测试和桌面、移动视口的验证码界面定向测试通过。验证码模式需在 Preview 的 SMTP 和模板实测后启用。
+
+## 2026-11-20 Preview 数据库与真实 Gemini
+
+- 已创建 `wenshan-preview` 和 `wenshan-production` 两个独立的 Supabase Free 项目，分别保存管理员密码。只在 Preview 执行四项版本化迁移并验证受限角色的 TLS 连接。
+- 已部署现有 Vercel 项目的受保护 Preview。真实云端账号隔离、独立会话同步、Gemini 流式解卦和账号限额均通过。`npm run build`、TypeScript 和 25 项单元测试通过。
+- Supabase Free 的默认邮件服务拒绝自定义验证码模板。真实邮箱投递和正式数据库迁移仍待处理。见 [云端部署状态](CLOUD_DEPLOYMENT_STATUS.md)。
+
+## 2026-11-19 受保护的真实 Preview
+
+- 私库 `dev/launch-readiness` 提交 `7c16642` 已通过远程 CI，并在 Vercel Hobby 项目 `wenshan` 建成受保护的 Preview。
+- 驳回了 Git 默认分支作为生产的自动构建。生产追踪暂停放在 `release/production-hold`，自动分配生产域名关闭；正式分支及正式部署均尚未创建。
+- 实际测试了三幕、20 套自动动作、四间小屋、道具、身形预览和手机视口。需要配置真实 Supabase 与 Gemini 后再验收账号、成长和 AI。见 [云端部署状态](CLOUD_DEPLOYMENT_STATUS.md)。
+
 ## 2026-11-19 上线与长期维护
 
 - 在现有目录初始化 Git 开发分支 `dev/launch-readiness`，准备 GitHub CI 与 PR 验收模板。

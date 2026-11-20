@@ -3,6 +3,37 @@ import { petMotions } from "../../src/lib/pet-v16";
 
 const xiaoguaMotions = petMotions.xiaogua.map(motion => motion.id).sort();
 
+test("email code is the only sign-in field after sending and a rejected code can be retried", async ({ page }, info) => {
+  test.skip(!["desktop-1440", "mobile-390"].includes(info.project.name));
+  const guest = { account: null, progress: null, backend: "supabase", authMode: "email-otp" };
+  await page.route("**/api/companion", async route => {
+    if (route.request().method() === "GET") return route.fulfill({ json: guest });
+    const input = route.request().postDataJSON();
+    expect(input.label).toBe("test@example.invalid");
+    if (input.op === "sendLoginCode") return route.fulfill({ json: { ...guest, needsConfirmation: true } });
+    expect(input.op).toBe("verifyLoginCode");
+    if (input.code === "000000") return route.fulfill({ status: 401, json: { error: "验证码无效或已过期。" } });
+    expect(input.code).toBe("123456");
+    return route.fulfill({ json: { ...guest, account: { label: input.label } } });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "跳过" }).click();
+  await page.getByRole("button", { name: "登录问山" }).click();
+  const modal = page.getByRole("dialog", { name: "登录问山" });
+  await expect(modal.getByText("首次验证此邮箱后，会自动创建问山账号。")).toBeVisible();
+  await expect(modal.locator('input[type="password"]')).toHaveCount(0);
+  await modal.getByLabel("邮箱", { exact: true }).fill("test@example.invalid");
+  await modal.getByRole("button", { name: "发送验证码" }).click();
+  const code = page.getByRole("textbox", { name: "邮箱验证码", exact: true });
+  await expect(code).toHaveAttribute("autocomplete", "one-time-code");
+  await code.fill("000000");
+  await page.getByRole("button", { name: "验证并登录" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "验证码无效或已过期。" })).toBeVisible();
+  await code.fill("123456");
+  await page.getByRole("button", { name: "验证并登录" }).click();
+  await expect(page.getByRole("button", { name: "我的账号" })).toBeVisible();
+});
+
 async function observeRounds(rigs: Locator, size: number) {
   return rigs.evaluateAll((elements, count) => new Promise<Record<string, string[]>>(resolve => {
     const observed: Record<string, string[]> = {};

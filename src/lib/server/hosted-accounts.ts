@@ -58,6 +58,24 @@ function emailCode(code: unknown) {
   return otp;
 }
 
+export function hostedEmailOtpEnabled() {
+  return process.env.WENSHAN_ACCOUNT_AUTH === "email-otp";
+}
+
+export async function hostedSendEmailCode(email: string, createAccount: boolean) {
+  checkEmail(email);
+  const { error } = await authClient().signInWithOtp({ email, options: { shouldCreateUser: createAccount } });
+  if (error) authFailure(error, "暂时无法发送验证码，请核对邮箱或稍后再试。");
+}
+
+export async function hostedVerifyEmailCode(email: string, code: unknown) {
+  checkEmail(email);
+  const { data, error } = await authClient().verifyOtp({ email, token: emailCode(code), type: "email" });
+  if (error || !data.session || !data.user?.email_confirmed_at || data.user.email?.toLowerCase() !== email)
+    return authFailure(error, "验证码无效或已过期。");
+  return identity(data.user, data.session);
+}
+
 export async function hostedSignIn(email: string, password: string, op: "login" | "register" | "verifyEmail", code: unknown) {
   checkEmail(email);
   const auth = authClient();
@@ -106,9 +124,14 @@ export async function hostedLogout(access?: string) {
   if (access) await authClient().admin.signOut(access, "local");
 }
 
-export async function hostedDelete(current: HostedIdentity, password: string) {
-  const { data, error } = await authClient().signInWithPassword({ email: current.label, password });
-  if (error || data.user?.id !== current.subject) return authFailure(error, "请输入当前账号的正确密码。");
+export async function hostedDelete(current: HostedIdentity, proof: { password: string } | { code: unknown }) {
+  if ("code" in proof) {
+    const verified = await hostedVerifyEmailCode(current.label.toLowerCase(), proof.code);
+    if (verified.subject !== current.subject) return authFailure(null, "验证码与当前账号不符。");
+  } else {
+    const { data, error } = await authClient().signInWithPassword({ email: current.label, password: proof.password });
+    if (error || data.user?.id !== current.subject) return authFailure(error, "请输入当前账号的正确密码。");
+  }
   const result = await authClient(true).admin.deleteUser(current.subject);
   if (result.error) throw new Error("Auth deletion failed");
 }

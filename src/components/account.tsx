@@ -29,10 +29,12 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deletionCodeSent, setDeletionCodeSent] = useState(false);
   const [importing, setImporting] = useState(false);
   const [localCount, setLocalCount] = useState(0);
   const dialog = useRef<HTMLDialogElement>(null);
   const epoch = useRef(0);
+  const emailOtp = state.authMode === "email-otp";
 
   useEffect(() => {
     let mounted = true;
@@ -55,6 +57,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   function show() {
     setMessage("");
     setDeleting(false);
+    setDeletionCodeSent(false);
     setImporting(false);
     try { setLocalCount(parseHistory(localStorage.getItem(historyKey)).length); } catch { setLocalCount(0); }
     dialog.current?.showModal();
@@ -65,10 +68,16 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     setMessage("");
     ++epoch.current;
     try {
-      const next = await accountRequest<AccountState>(payload);
+      const next = await accountRequest<AccountState & { deletionCodeSent?: boolean }>(payload);
+      if (next.deletionCodeSent) {
+        setDeletionCodeSent(true);
+        setMessage("请查收邮件并输入验证码。");
+        return;
+      }
       setState(next);
       setReady(true);
       setDeleting(false);
+      setDeletionCodeSent(false);
       if (next.needsConfirmation) {
         setVerifyAddress(String(payload.label));
         setMode("verifyEmail");
@@ -92,7 +101,8 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const fields = new FormData(event.currentTarget);
-    void transition({ op: deleting ? "deleteAccount" : mode, label: mode === "verifyEmail" || mode === "resetPassword" ? verifyAddress : fields.get("label"),
+    const op = deleting ? "deleteAccount" : emailOtp ? mode === "verifyEmail" ? "verifyLoginCode" : "sendLoginCode" : mode;
+    void transition({ op, label: mode === "verifyEmail" || mode === "resetPassword" ? verifyAddress : fields.get("label"),
       password: fields.get("password"), code: fields.get("code") });
   }
 
@@ -116,7 +126,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     {children}
     <dialog ref={dialog} className="settings-dialog account-dialog" aria-labelledby="account-title">
       <div className="dialog-head"><h2 id="account-title">{state.account ? "我的账号" :
-        resetMode ? "重置密码" : mode === "verifyEmail" ? "验证邮箱" : mode === "login" ? "登录问山" : "创建问山账号"}</h2>
+        resetMode ? "重置密码" : mode === "verifyEmail" ? "输入邮箱验证码" : emailOtp || mode === "login" ? "登录问山" : "创建问山账号"}</h2>
         <button type="button" className="icon-button" aria-label="关闭账号" onClick={() => dialog.current?.close()}><X size={18} /></button>
       </div>
       {state.account ? <>
@@ -134,27 +144,35 @@ export function AccountProvider({ children }: { children: ReactNode }) {
           <button type="button" className="button primary" disabled={busy} onClick={() => void importGuest()}>确认导入本机记录</button>
         </div> : localCount > 0 && <button type="button" className="text-button" onClick={() => setImporting(true)}>导入本机记录</button>}
         {deleting ? <form className="account-form" onSubmit={submit} key="delete">
-          <p>删除会清除本账号、已绑定的灵宠和问卦记录。请输入当前密码确认。</p>
-          <label>当前密码<input name="password" minLength={10} maxLength={128} type="password" autoComplete="current-password" required /></label>
-          <div className="account-row"><button type="button" className="button secondary" onClick={() => setDeleting(false)}>返回</button>
-            <button type="submit" className="button primary" disabled={busy}>确认删除账号</button></div>
+          <p>删除会清除本账号、已绑定的灵宠和问卦记录。{emailOtp ? "请用当前邮箱的验证码确认。" : "请输入当前密码确认。"}</p>
+          {emailOtp ? deletionCodeSent && <EmailCodeField /> :
+            <label>当前密码<input name="password" minLength={10} maxLength={128} type="password" autoComplete="current-password" required /></label>}
+          <div className="account-row"><button type="button" className="button secondary" disabled={busy} onClick={() => { setDeleting(false); setDeletionCodeSent(false); setMessage(""); }}>返回</button>
+            {(!emailOtp || deletionCodeSent) && <button type="submit" className="button primary" disabled={busy}>确认删除账号</button>}
+            {emailOtp && <button type="button" className={deletionCodeSent ? "text-button" : "button primary"} disabled={busy}
+              onClick={() => void transition({ op: "sendDeleteCode" })}>{deletionCodeSent ? "重新发送" : "发送验证码"}</button>}</div>
         </form> : <div className="account-row">
           <button type="button" className="button secondary" disabled={busy} onClick={() => void transition({ op: "logout" })}>退出登录</button>
           <button type="button" className="text-button" onClick={() => setDeleting(true)}>删除账号</button>
         </div>}
-      </> : mode === "verifyEmail" || mode === "resetPassword" ? <form className="account-form" onSubmit={submit} key={mode}>
+      </> : !ready ? <p role="status">正在连接账号服务……</p> : mode === "verifyEmail" || mode === "resetPassword" ? <form className="account-form" onSubmit={submit} key={mode}>
         <p>{verifyAddress}</p>
-        <label>邮箱验证码<input name="code" inputMode="numeric" autoComplete="one-time-code" maxLength={12} required /></label>
+        <EmailCodeField />
         {mode === "resetPassword" && <label>新密码<input name="password" type="password" autoComplete="new-password" minLength={10} maxLength={128} required /></label>}
         <div className="account-row">
           <button className="button primary" type="submit" disabled={busy}>{mode === "resetPassword" ? "保存新密码" : "验证并登录"}</button>
-          <button className="text-button" type="button" onClick={() => { setMode("login"); setMessage(""); }}>返回登录</button>
+          <button className="text-button" type="button" disabled={busy} onClick={() => { setMode("login"); setMessage(""); }}>{emailOtp ? "更换邮箱" : "返回登录"}</button>
+          {emailOtp && <button className="text-button" type="button" disabled={busy}
+            onClick={() => void transition({ op: "sendLoginCode", label: verifyAddress })}>重新发送</button>}
         </div>
       </form> : <form className="account-form" onSubmit={submit} key={mode}>
         <p>结契后，灵宠和小屋进度随账号保存。也可以先以游客身份问卦。</p>
         {state.backend ? <label>邮箱<input name="label" type="email" autoComplete="username" maxLength={254} required /></label> :
           <label>账户名<input name="label" aria-label="账户名" autoComplete="username" minLength={3} maxLength={31} placeholder="字母或数字" required /></label>}
-        {mode !== "requestReset" && <label>密码<input name="password" aria-label="密码" autoComplete={mode === "login" ? "current-password" : "new-password"}
+        {emailOtp ? <>
+          <p>首次验证此邮箱后，会自动创建问山账号。</p>
+          <button type="submit" className="button primary" disabled={busy}>{busy ? "正在发送……" : "发送验证码"}</button>
+        </> : <>{mode !== "requestReset" && <label>密码<input name="password" aria-label="密码" autoComplete={mode === "login" ? "current-password" : "new-password"}
           type="password" minLength={10} maxLength={128} placeholder="至少 10 位" required /></label>}
         <div className="account-row"><button type="submit" className="button primary" disabled={busy}>{busy ? "请稍候" : mode === "login" ? "登录" : mode === "requestReset" ? "发送验证码" : "注册账号"}</button>
           <button type="button" className="text-button" disabled={busy} onClick={() => { setMessage(""); setMode(mode === "login" ? "register" : "login"); }}>
@@ -162,11 +180,15 @@ export function AccountProvider({ children }: { children: ReactNode }) {
           </button>
           {state.backend && mode === "login" && <button type="button" className="text-button" disabled={busy}
             onClick={() => { setMessage(""); setMode("requestReset"); }}>忘记密码</button>}
-        </div>
+        </div></>}
       </form>}
       {message && <p role="status" className="account-notice">{message}</p>}
     </dialog>
   </Context.Provider>;
+}
+
+function EmailCodeField() {
+  return <label>邮箱验证码<input name="code" inputMode="numeric" autoComplete="one-time-code" maxLength={10} pattern="[0-9]{6,10}" required /></label>;
 }
 
 export function useAccount() {

@@ -6,7 +6,7 @@ import { checkPassword, cookieName, removeAccount, revokeSession, sessionDuratio
 import { accountDb, AccountError, bindPet, castLine, equip, progressFor, readingsFor, touch, visit, withOwner, writeReadings, type AccountTransaction } from "@/lib/server/companion-db";
 
 import { accountBackend, accessCookie, refreshCookie, hostedDelete, hostedIdentity, hostedLogout, hostedSignIn,
-  hostedRequestReset, hostedCompleteReset,
+  hostedRequestReset, hostedCompleteReset, hostedEmailOtpEnabled, hostedSendEmailCode, hostedVerifyEmailCode,
   withHostedOwner, type HostedIdentity } from "@/lib/server/hosted-accounts";
 import { logEvent } from "@/lib/server/observability";
 
@@ -43,6 +43,9 @@ function hostedCookies(request: NextRequest, response: NextResponse, renew?: Hos
 const currentHosted = (request: NextRequest) =>
   hostedIdentity(request.cookies.get(accessCookie)?.value, request.cookies.get(refreshCookie)?.value);
 
+const hostedState = () => ({ backend: "supabase", authMode: hostedEmailOtpEnabled() ? "email-otp" : "password" });
+const hostedGuest = () => ({ account: null, progress: null, ...hostedState() });
+
 function backend() {
   const value = accountBackend();
   if (value === "supabase" || value === "local" && !process.env.VERCEL) return value;
@@ -55,7 +58,7 @@ async function accountPayload(tx: AccountTransaction, owner: string, label: stri
   if (!hosted) return data;
   const profile = await tx.query<{ display_name: string }>("SELECT display_name FROM companion.profiles WHERE owner_id=$1", [owner]);
   const inventory = await tx.query<{ item: string }>("SELECT item FROM companion.inventory WHERE owner_id=$1 ORDER BY item", [owner]);
-  return { ...data, backend: "supabase", displayName: profile.rows[0]?.display_name ?? "", inventory: inventory.rows.map(row => row.item) };
+  return { ...data, ...hostedState(), displayName: profile.rows[0]?.display_name ?? "", inventory: inventory.rows.map(row => row.item) };
 }
 
 export async function GET(request: NextRequest) {
@@ -63,7 +66,7 @@ export async function GET(request: NextRequest) {
     for (const key of request.nextUrl.searchParams.keys()) if (key !== "history") return json({ error: "不支持此查询。" }, 400);
     if (backend() === "supabase") {
       const user = await currentHosted(request);
-      if (!user) return hostedCookies(request, json({ account: null, progress: null, backend: "supabase" }), undefined, true);
+      if (!user) return hostedCookies(request, json(hostedGuest()), undefined, true);
       const result = await withHostedOwner(user.subject, (tx, owner) =>
         accountPayload(tx, owner, user.label, request.nextUrl.searchParams.has("history"), true));
       return hostedCookies(request, json(result), user.renewal);
@@ -125,6 +128,21 @@ export async function POST(request: NextRequest) {
 }
 
 async function hostedPost(request: NextRequest, op: unknown, data: Record<string, unknown>) {
+  const emailOtp = hostedEmailOtpEnabled();
+  if (op === "sendLoginCode" || op === "verifyLoginCode") {
+    if (!emailOtp) return json({ error: "邮箱验证码登录暂未启用。" }, 409);
+    if (typeof data.label !== "string") return json({ error: "请填写邮箱。" }, 400);
+    const email = data.label.trim().toLowerCase();
+    if (op === "sendLoginCode") {
+      await hostedSendEmailCode(email, true);
+      return json({ ...hostedGuest(), needsConfirmation: true });
+    }
+    const user = await hostedVerifyEmailCode(email, data.code);
+    const result = await withHostedOwner(user.subject, (tx, owner) => accountPayload(tx, owner, user.label, false, true));
+    return hostedCookies(request, json(result), user.renewal);
+  }
+  if (emailOtp && ["login", "register", "verifyEmail", "requestReset", "resetPassword"].some(action => action === op))
+    return json({ error: "请打开最新版问山，用邮箱验证码登录。" }, 409);
   if (op === "requestReset" || op === "resetPassword") {
     if (typeof data.label !== "string") return json({ error: "请填写邮箱。" }, 400);
     const email = data.label.trim().toLowerCase();
@@ -147,14 +165,21 @@ async function hostedPost(request: NextRequest, op: unknown, data: Record<string
   }
   const user = await currentHosted(request);
   if (!user) return hostedCookies(request, json({ error: "请先登录。" }, 401), undefined, true);
+  if (op === "sendDeleteCode" && emailOtp) {
+    await hostedSendEmailCode(user.label.toLowerCase(), false);
+    return hostedCookies(request, json({ deletionCodeSent: true }), user.renewal);
+  }
   if (op === "logout" || op === "deleteAccount") {
     if (op === "deleteAccount") {
-      if (!checkPassword(data.password)) return json({ error: "请输入当前密码。" }, 400);
-      await hostedDelete(user, data.password);
+      if (emailOtp) await hostedDelete(user, { code: data.code });
+      else {
+        if (!checkPassword(data.password)) return json({ error: "请输入当前密码。" }, 400);
+        await hostedDelete(user, { password: data.password });
+      }
     } else {
       await hostedLogout(user.renewal?.access_token ?? request.cookies.get(accessCookie)?.value);
     }
-    return hostedCookies(request, json({ account: null, progress: null, backend: "supabase" }), undefined, true);
+    return hostedCookies(request, json(hostedGuest()), undefined, true);
   }
   const result = await withHostedOwner(user.subject, async (tx, owner) => {
     if (op === "updateProfile") {

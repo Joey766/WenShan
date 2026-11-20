@@ -4,13 +4,25 @@
 
 | 服务 | 已核验事实 |
 | --- | --- |
-| GitHub | 已在 `Joey766` 名下创建 [WenShan 私有仓库](https://github.com/Joey766/WenShan)。仓库为空。仓库设置提示规则集在当前方案下不会强制执行 |
-| Vercel | 当前 Edge 会话进入 Dashboard 时出现登录页。尚无 Preview 和正式地址 |
-| Supabase | 当前 Dashboard 会话没有列出可复用组织或项目。生产与 Preview 数据库均未连接 |
-| Gemini | Google AI Studio 显示一个已经存在的免费层级项目和一枚 Key。没有读取或传输 Key，没有远程模型调用 |
+| GitHub | [WenShan 私有仓库](https://github.com/Joey766/WenShan) 的 `dev/launch-readiness` 已推送 `7c16642`，[GitHub Actions](https://github.com/Joey766/WenShan/actions/runs/44479012572) 构建、TypeScript、单测及 20 项浏览器测试已通过。私库方案的规则集不强制执行 |
+| Vercel | Hobby 项目 `wenshan` 从 `dev/launch-readiness` 自动构建 TLS 修复提交 `75708c1`。[开发分支 Preview](https://wenshan-git-dev-launch-readiness-joey766s-projects.vercel.app) 已更新，对应 [固定部署](https://wenshan-7yunbiguo-joey766s-projects.vercel.app) 的健康检查显示数据库已就绪。Production 当前无可访问部署 |
+| Supabase | `WenShan` 组织套餐确认 Free。`wenshan-preview`（`zribhqvanbrfipchjgkg`）和 `wenshan-production`（`qbcbtarlmgzmfbhkitig`）均位于 `us-east-1`，两者均显示健康。四项迁移仅应用于 Preview。两个管理员密码和 Preview 受限运行角色密码分别存放在当前 Windows 用户的凭据管理器 |
+| Gemini | Preview 继续使用用户原先设置的 Secret 和 `gemini-3.1-flash-lite`。已完成真实中文流式解卦、拒绝云端处理后的回退、账号阈值触发后的回退。未启用计费 |
 | Ollama | 保留为本地 Provider |
 
-首次远程操作待用户确认。预定只推送 `dev/launch-readiness` 到 `Joey766/WenShan`。CI 在开发分支运行；Vercel 构建配置让 Preview 可继续，Production 需要同时是 `main` 且设置用户放行变量。GitHub Free 私库的强制规则限制需要人工审批补足。 [GitHub 分支保护](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches) · [Vercel 构建设置](https://vercel.com/docs/project-configuration/project-settings#ignored-build-step)
+Vercel 在连接 Git 时把唯一的开发分支选作 Production，构建门控成功取消了该次尝试。Vercel 校验目标分支必须已存在，因此在同一已审计 SHA 上临时建立 `release/production-hold`，将 Production 追踪改为该分支，关闭生产域名自动分配后，从 `dev/launch-readiness` 显式创建 Preview。生产条件满足后才创建 `main`，切换追踪并放行。现有门控要求同时是 `main` 和启用生产变量。 [GitHub 分支保护](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches) · [Vercel 构建设置](https://vercel.com/docs/project-configuration/project-settings#ignored-build-step)
+
+## 线上 Preview 实测
+
+- Edge 登录 Vercel 后可进入 Preview。另一个无 Vercel 会话的浏览器被重定向到登录页。
+- 线上完成游客选宠、六次掷钱和观卦阁展示。该次实际本卦为同人，二、三、上爻动，变卦为兑，界面标记「演示模式 · Mock」。
+- 线上四个角色各观察到五套自动动作，共 20 套。进入了卦算屋、云栖台、木叶居和星演阁，操作了绒球、坐垫、月灯及「圆乎乎」身形预览。成长持久化需登录后复验。
+- 桌面和 390 像素手机模拟视口均检查了首页和小屋，手机视口无横向溢出。受保护 Preview 的本轮浏览器检查未捕获控制台错误。
+- 用户保存 Secret 后，[重新部署](https://vercel.com/joey766s-projects/wenshan/EEe16TQZNQnnjUonmf8T3qxUoPeA) 标记 Ready / Preview。线上 `/api/health` 返回 `provider: gemini`、`persistence: unavailable` 和 `ready: false`。重新六掷后游客仍看到内置释意、Google 数据告知和「登录后使用 Gemini」。首次实际请求、中文流式模型输出及真实配额验收均待核验。
+- 2026-11-20 最新 Preview `/api/health` 实测返回 `ready: true`、`provider: gemini` 和 `persistence: ready`。外部未登录请求返回 302。用于自动测试的临时授权已撤销，Vercel Authentication 保持开启。
+- 真实 Supabase A/B 测试覆盖登录、各自灵宠、XP、记录和昵称。B 无法读取、修改或删除 A 的记录。再次登录的新会话恢复 A 的成长和记录。删除合成账号 A 后，B 仍可读自己的灵宠。Vercel API 实测了双账号、跨独立会话同步与拒绝指定其他所有者。合成账号已清理。
+- Gemini 固定卦例为离之艮，初、四爻动，偏慎。两次实测分别在约 0.32 秒、0.15 秒收到确定性首段，约 2.12 秒、2.41 秒收到模型段，约 2.15 秒、4.45 秒完成。均返回三段、`mode: cloud`。拒绝云端处理及达到账号每分钟限制后回退为站内释意。账号每日与全站每日限额在实际数据库内用回滚事务验证。未人为耗尽 Google 免费额度。
+- Preview Auth 回调地址已核验。Supabase 明确拒绝 Free 默认发送服务修改验证码模板，公开注册与密码找回的邮件投递暂未通过验收。A/B 为通过管理 API 预先确认的测试账号，与邮件验证验收分开。
 
 ## 首次推送范围
 
@@ -28,12 +40,12 @@
 
 ## 上线前验收
 
-- [ ] 确认首次开发分支推送，GitHub Actions 的源码审计、构建、类型和测试全部通过。
-- [ ] 打开 Vercel 受保护 Preview，健康检查返回正确提交，桌面、手机可用。
-- [ ] 四宠屋、20 套动作、玩具、结契、成长与装扮在 Preview 实测通过。
-- [ ] Supabase Preview 和 Production 分开。用 A/B 测试邮箱验证注册、验证码重置、跨设备、退出、重复绑定、隔离与删除测试账号。
-- [ ] 用真实 Free Tier Key 在 Preview 发一条固定的非个人问题，确认 SSE 最终标记为 Gemini、卦象正确、无前端密钥、限额和降级正常。
+- [x] 首次开发分支推送，GitHub Actions 源码审计、构建、类型和测试通过。
+- [x] Vercel 部署详情核对正确提交。保护、桌面与手机视口、三幕、四间小屋、玩具、20 套动作和身形预览实测通过。
+- [x] 云端数据库隔离、Preview 健康、真实合成账号 A/B 权限及独立会话成长同步。
+- [x] 实际 Gemini API 流式 NDJSON 问卦、固定卦例和账号限流回退。日报限额在云端数据库回滚验证。
+- [ ] 邮件服务、真实邮箱注册与密码找回、实体设备复测和剩余正式验收。
 - [ ] 验证生产备份与恢复、列明待迁移的 SQL 版本和影响。只有用户另行批准才执行正式数据库迁移。
-- [ ] 用户明确回复「确认正式上线」后才能创建或合并 `main`、放行 Production 并验证正式地址。
+- [ ] 用户已条件性授权首次公开。全部上线条件、邮件及隐私验收和独立的正式数据库迁移授权齐备后，才创建 `main`、放行 Production 并验证正式地址。后续每次发布仍需用户批准。
 
 日常更新按 [发布与恢复手册](RELEASE_RUNBOOK.md) 执行，持久库和正式网址持续复用。
