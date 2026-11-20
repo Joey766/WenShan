@@ -7,6 +7,8 @@ import type { Message } from "@/lib/interpretation";
 import { pets, type Pet } from "@/lib/pets";
 import { getReading, tossCoins, type Coins } from "@/lib/yijing";
 import type { Progress } from "@/lib/pet-v16";
+import { selectedProfile, type ProfileCategory } from "@/lib/profile";
+import { readingFocus, type ReadingFocus } from "@/lib/reading-context";
 import { Divination } from "./divination";
 import { Entrance } from "./entrance";
 import { HexagramGlyph } from "./hexagram";
@@ -15,6 +17,7 @@ import { ReadingScene } from "./reading";
 import { HistoryDialog } from "./history-dialog";
 import { World } from "./world";
 import { accountRequest, useAccount } from "./account";
+import { useProfile } from "./profile";
 
 const acts = [
   { title: "山海入口", icon: Mountain }, { title: "问心台", icon: CoinIcon }, { title: "观卦阁", icon: ScrollText },
@@ -53,6 +56,11 @@ function Journey() {
   const { state, ready, setProgress } = useAccount();
   const [act, setAct] = useState(0);
   const [question, setQuestion] = useState("");
+  const [background, setBackground] = useState("");
+  const [focus, setFocus] = useState<ReadingFocus>({ period: "不限定" });
+  const [usePersonal, setUsePersonal] = useState(false);
+  const [categories, setCategories] = useState<ProfileCategory[]>([]);
+  const { profile } = useProfile();
   const [casts, setCasts] = useState<Coins[]>([]);
   const [guide, setGuide] = useState<Pet>();
   const [resume, setResume] = useState<SavedReading>();
@@ -139,6 +147,10 @@ function Journey() {
 
   function restart() {
     setQuestion("");
+    setBackground("");
+    setFocus({ period: "不限定" });
+    setUsePersonal(false);
+    setCategories([]);
     setCasts([]);
     setGuide(undefined);
     setResume(undefined);
@@ -166,6 +178,10 @@ function Journey() {
     if (!pet) choose(entry.pet);
     setGuide(pet);
     setQuestion(entry.question);
+    setBackground(entry.background);
+    setFocus(entry.focus ?? { period: "不限定" });
+    setUsePersonal(false);
+    setCategories([]);
     setCasts(entry.casts);
     setResume(entry);
     record.current = { id: entry.id, createdAt: entry.createdAt, question: entry.question };
@@ -188,7 +204,7 @@ function Journey() {
     if (!companion || casts.length !== 6) return "暂时无法保存这条记录";
     record.current ??= { id: crypto.randomUUID(), createdAt: Date.now() };
     const entry = { id: record.current.id, createdAt: record.current.createdAt, pet: companion.id,
-      question: question.trim(), background: resume?.background ?? "", casts, messages };
+      question: question.trim(), background: background.trim(), focus: readingFocus(focus), casts, messages };
     try {
       if (account) {
         await accountRequest({ op: "saveHistory", entries: [entry] });
@@ -226,10 +242,14 @@ function Journey() {
       {currentAct === 0 && <Entrance enter={() => travel(1)} leaving={passage === "enter"} openHistory={() => void openHistory()} />}
       {currentAct < 2 && <div className="cast-host" data-visible={currentAct === 1} inert={currentAct !== 1 || opening}>
         <Divination pet={companion ?? pets[0]} visible={currentAct === 1} question={question} setQuestion={setQuestion}
+          background={background} setBackground={setBackground} focus={focus} setFocus={setFocus}
+          usePersonal={usePersonal} setUsePersonal={setUsePersonal} categories={categories} setCategories={setCategories} profile={profile}
           casts={casts} addCast={result => setCasts(items => items.length < 6 ? [...items, result] : items)}
           proceed={() => travel(2)} reduced={reduced} getCoins={getCoins} />
       </div>}
       {currentAct === 2 && companion && <ReadingScene key={resume?.id ?? "current"} pet={companion} question={question.trim()}
+        context={{ background: background.trim() || undefined, focus: readingFocus(focus),
+          profile: usePersonal ? selectedProfile(profile, categories) : undefined }}
         casts={casts} restart={restart} saved={resume?.messages} save={saveEntry} />}
       <HistoryDialog dialog={history} entries={entries} openEntry={openEntry} onClear={clearHistory} signedIn={!!account} error={historyError} />
       {passage && <div className={`cloud-passage passage-${passage}`} aria-label="场景转场">

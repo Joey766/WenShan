@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
 import { hostedCompleteReset, hostedDelete, hostedIdentity, hostedRequestReset, hostedSendEmailCode, hostedSignIn,
-  hostedVerifyEmailCode } from "../src/lib/server/hosted-accounts.ts";
+  hostedVerifyEmailCode, sealHostedSession, verifiedHostedSession, completeHostedLoginChallenge } from "../src/lib/server/hosted-accounts.ts";
 
 test("Supabase adapter verifies token with Auth and accepts only verified account sessions", async context => {
   const environment = { SUPABASE_URL: "https://auth-example.invalid", SUPABASE_PUBLISHABLE_KEY: "test-publishable-key" };
@@ -66,6 +66,29 @@ test("Supabase adapter verifies token with Auth and accepts only verified accoun
       if (value === undefined) delete process.env[key];
       else process.env[key] = value;
     }
+  }
+});
+
+test("app session proof rejects swapped and unverified tokens; login code alone cannot unlock an account", async context => {
+  context.mock.method(globalThis, "fetch", async () => { throw new Error("Auth must not receive unverified cookies"); });
+  const savedKey = process.env.SUPABASE_AUTH_ADMIN_KEY;
+  const savedMode = process.env.WENSHAN_ACCOUNT_AUTH;
+  process.env.SUPABASE_AUTH_ADMIN_KEY = "synthetic-admin-key";
+  process.env.WENSHAN_ACCOUNT_AUTH = "password-email-code";
+  try {
+    const now = 1795104000000;
+    const session = { access_token: "verified-access", refresh_token: "verified-refresh", expires_in: 3600 };
+    const proof = sealHostedSession(session, 300, now);
+    assert.equal(verifiedHostedSession(proof, session.access_token, session.refresh_token, now), true);
+    assert.equal(verifiedHostedSession(proof, undefined, session.refresh_token, now), true);
+    assert.equal(verifiedHostedSession(proof, "foreign-access", session.refresh_token, now), false);
+    assert.equal(verifiedHostedSession(proof, undefined, "foreign-refresh", now), false);
+    assert.equal(verifiedHostedSession(proof, undefined, session.refresh_token, now + 300_000), false);
+    assert.equal(await hostedIdentity(session.access_token, session.refresh_token), null);
+    await assert.rejects(completeHostedLoginChallenge(undefined, "guest@example.invalid", "123456"), { status: 401 });
+  } finally {
+    if (savedKey === undefined) delete process.env.SUPABASE_AUTH_ADMIN_KEY; else process.env.SUPABASE_AUTH_ADMIN_KEY = savedKey;
+    if (savedMode === undefined) delete process.env.WENSHAN_ACCOUNT_AUTH; else process.env.WENSHAN_ACCOUNT_AUTH = savedMode;
   }
 });
 

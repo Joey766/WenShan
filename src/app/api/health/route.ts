@@ -14,7 +14,10 @@ export async function GET() {
     try {
       const { rows: [check] } = await hostedPool().query<{ available: boolean }>(`SELECT
         has_function_privilege(current_user,'companion.hosted_owner(uuid)','EXECUTE') AND
-        has_function_privilege(current_user,'companion.reserve_user_ai(uuid,integer,integer,integer,integer)','EXECUTE') AS available`);
+        has_function_privilege(current_user,'companion.reserve_user_ai(uuid,integer,integer,integer,integer)','EXECUTE') AND
+        to_regclass('companion.login_challenges') IS NOT NULL AND EXISTS (
+          SELECT 1 FROM pg_attribute WHERE attrelid=to_regclass('companion.profiles') AND attname='personal' AND NOT attisdropped
+        ) AS available`);
       persistence = check.available ? "ready" : "unavailable";
     } catch { /* Health responds without exposing connection details. */ }
     ready &&= persistence === "ready";

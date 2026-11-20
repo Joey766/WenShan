@@ -38,8 +38,9 @@ export const forms = {
 export type Form = keyof typeof forms;
 export type Progress = { pet: PetId; xp: number; boundAt: number; activeDays: number; shape: Form; decoration: Decoration | null };
 export type AccountState = { account: { label: string } | null; progress: Progress | null;
-  backend?: "supabase"; authMode?: "password" | "email-otp"; needsConfirmation?: boolean;
-  reset?: "sent" | "completed"; displayName?: string; inventory?: string[] };
+  backend?: "supabase"; authMode?: "password" | "email-otp" | "password-email-code";
+  needsConfirmation?: boolean; needsLoginCode?: boolean; registrationVerified?: boolean;
+  reset?: "sent" | "completed"; displayName?: string; personalProfile?: import("./profile.ts").Profile; inventory?: string[] };
 export const growthPhase = (xp: number) => xp >= 180 ? "默契" : xp >= 60 ? "熟悉" : "初识";
 
 export function canDecorate(pet: PetId, key: Decoration, xp: number) {

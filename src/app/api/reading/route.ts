@@ -1,10 +1,11 @@
 
 import { demoReading, fortuneFromCast, preparedDetails, type ReadingEvent, type ReadingRequest, type ReadingNotice } from "@/lib/interpretation";
 import { generateGlosses, generateReading, localModel } from "@/lib/reading-generation";
-import { ageBands, type ProfileContext } from "@/lib/profile";
+import { ageBands, roles, type ProfileContext } from "@/lib/profile";
+import { readingFocus } from "@/lib/reading-context";
 import { getReading, isCoins } from "@/lib/yijing";
 import { aiProvider, geminiModel, ModelError } from "@/lib/server/ai-provider";
-import { accessCookie, accountBackend, hostedIdentity, hostedPool } from "@/lib/server/hosted-accounts";
+import { accessCookie, accountBackend, hostedIdentity, hostedPool, refreshCookie, sessionProofCookie } from "@/lib/server/hosted-accounts";
 import { logEvent } from "@/lib/server/observability";
 
 export const runtime = "nodejs";
@@ -22,7 +23,8 @@ async function getModel(provider: ReturnType<typeof aiProvider>, request: NextRe
   const model = geminiModel();
   if (!model) throw new ModelError("unavailable");
   const access = request.cookies.get(accessCookie)?.value;
-  const owner = accountBackend() === "supabase" && access ? await hostedIdentity(access) : null;
+  const owner = accountBackend() === "supabase" && access ? await hostedIdentity(access,
+    request.cookies.get(refreshCookie)?.value, request.cookies.get(sessionProofCookie)?.value, false) : null;
   if (!owner) throw new ModelError("identity");
   signal.throwIfAborted();
   const { rows: [budget] } = await hostedPool().query<{ result: string }>(
@@ -56,12 +58,16 @@ function parseRequest(data: unknown) {
   let profile: ProfileContext | undefined;
   if (input.profile !== undefined) {
     if (!input.profile || typeof input.profile !== "object" ||
-        Object.keys(input.profile).some(key => key !== "ageBand" && key !== "expression")) return null;
-    const { ageBand, expression } = input.profile;
-    if ((ageBand !== undefined && !ageBands.includes(ageBand)) || (expression !== undefined && !shortText(expression, 30))) return null;
-    profile = { ageBand, expression: expression?.trim() };
+        Object.keys(input.profile).some(key => !["ageBand", "expression", "role"].includes(key))) return null;
+    const { ageBand, expression, role } = input.profile;
+    if ((ageBand !== undefined && !ageBands.includes(ageBand)) || (expression !== undefined && !["男", "女", "其他"].includes(expression)) ||
+        (role !== undefined && !roles.includes(role))) return null;
+    if (input.profileConsent === true) profile = { ageBand, expression, role };
   }
-  return { kind: "fortune", input: { question: input.question.trim(), coins: input.coins, profile,
+  if (input.background !== undefined && (typeof input.background !== "string" || input.background.length > 480)) return null;
+  const focus = readingFocus(input.focus);
+  if (input.focus && !focus && input.focus.period !== "不限定") return null;
+  return { kind: "fortune", input: { question: input.question.trim(), coins: input.coins, profile, focus, background: input.background?.trim(),
     cloudConsent: input.cloudConsent === true } } as const;
 }
 
@@ -100,8 +106,7 @@ export async function POST(request: NextRequest) {
     let notice: ReadingNotice | undefined = provider === "gemini" ? "cloud-unavailable" : undefined;
     try {
       const model = await getModel(provider, request, signal);
-      const prompt = provider === "gemini" ? { ...input, profile: undefined } : input;
-      const answer = model && await generateReading(model, prompt, reading, signal, send);
+      const answer = model && await generateReading(model, input, reading, signal, send);
       if (answer) {
         logEvent("info", "reading_complete", { provider, ms: Math.round(performance.now() - started) });
         return answer;

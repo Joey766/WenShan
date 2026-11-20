@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { Pool } from "pg";
 import { AccountError } from "./companion-db.ts";
 
@@ -6,6 +7,9 @@ export const accountBackend = () => process.env.WENSHAN_ACCOUNT_BACKEND ??
   (process.env.VERCEL ? "supabase" : "local");
 export const accessCookie = "wenshan_access";
 export const refreshCookie = "wenshan_refresh";
+export const loginChallengeCookie = "wenshan_login_challenge";
+export const sessionProofCookie = "wenshan_session_proof";
+export const loginChallengeMaxAge = 5 * 60;
 
 const globals = globalThis as typeof globalThis & { wenshanPool?: Pool };
 
@@ -62,6 +66,57 @@ export function hostedEmailOtpEnabled() {
   return process.env.WENSHAN_ACCOUNT_AUTH === "email-otp";
 }
 
+export function hostedTwoStepEnabled() {
+  return process.env.WENSHAN_ACCOUNT_AUTH === "password-email-code";
+}
+
+const digest = (value: string) => createHash("sha256").update(value).digest("base64url");
+
+function sessionSignature(payload: string, refresh: string) {
+  const key = process.env.SUPABASE_AUTH_ADMIN_KEY;
+  if (!key) throw new Error("Missing session proof key");
+  return createHmac("sha256", key).update(`wenshan:password-email:v1:${payload}:${refresh}`).digest("base64url");
+}
+
+export function sealHostedSession(session: Session, lifetime: number, now = Date.now()) {
+  const payload = `${now + lifetime * 1000}.${digest(session.access_token)}`;
+  return `${payload}.${sessionSignature(payload, session.refresh_token)}`;
+}
+
+export function verifiedHostedSession(proof?: string, access?: string, refresh?: string, now = Date.now()) {
+  if (!proof || !refresh || !/^\d{13}\.[\w-]{43}\.[\w-]{43}$/.test(proof)) return false;
+  const [expires, fingerprint, signature] = proof.split(".");
+  if (Number(expires) <= now || (access && digest(access) !== fingerprint)) return false;
+  return timingSafeEqual(Buffer.from(signature), Buffer.from(sessionSignature(`${expires}.${fingerprint}`, refresh)));
+}
+
+export async function startHostedLoginChallenge(email: string, password: string) {
+  const first = await hostedSignIn(email, password, "login", undefined);
+  if (!first) return authFailure(null, "登录失败，请核对邮箱和密码。");
+  await hostedSendEmailCode(email, false);
+  const nonce = randomBytes(32).toString("base64url");
+  await hostedPool().query(`INSERT INTO companion.login_challenges(subject,nonce_hash,address_hash,expires_at)
+    VALUES($1,$2,$3,now() + $4::integer * interval '1 second') ON CONFLICT(subject) DO UPDATE
+    SET nonce_hash=excluded.nonce_hash,address_hash=excluded.address_hash,expires_at=excluded.expires_at,attempts=0`,
+    [first.subject, digest(nonce), digest(nonce + email), loginChallengeMaxAge]);
+  await hostedPool().query("DELETE FROM companion.login_challenges WHERE expires_at < now()");
+  return nonce;
+}
+
+export async function completeHostedLoginChallenge(nonce: string | undefined, email: string, code: unknown) {
+  if (!nonce || !/^[\w-]{43}$/.test(nonce)) throw new AccountError(401, "请先验证邮箱和密码，再输入验证码。");
+  const otp = emailCode(code);
+  const { rows: [challenge] } = await hostedPool().query<{ subject: string }>(`UPDATE companion.login_challenges
+    SET attempts=attempts+1 WHERE nonce_hash=$1 AND address_hash=$2 AND expires_at>now() AND attempts<5 RETURNING subject`,
+    [digest(nonce), digest(nonce + email)]);
+  if (!challenge) throw new AccountError(429, "验证码验证已过期或尝试过多，请重新登录。");
+  const verified = await hostedVerifyEmailCode(email, otp);
+  if (verified.subject !== challenge.subject) return authFailure(null, "验证码与当前登录请求不符。");
+  const used = await hostedPool().query("DELETE FROM companion.login_challenges WHERE nonce_hash=$1 AND expires_at>now() RETURNING subject", [digest(nonce)]);
+  if (!used.rowCount) return authFailure(null, "验证码验证已结束，请重新登录。");
+  return verified;
+}
+
 export async function hostedSendEmailCode(email: string, createAccount: boolean) {
   checkEmail(email);
   const { error } = await authClient().signInWithOtp({ email, options: { shouldCreateUser: createAccount } });
@@ -106,7 +161,8 @@ export async function hostedCompleteReset(email: string, code: unknown, password
   if (revoked.error) console.warn(JSON.stringify({ event: "password_reset_signout_failed" }));
 }
 
-export async function hostedIdentity(access?: string, refresh?: string) {
+export async function hostedIdentity(access?: string, refresh?: string, proof?: string, allowRefresh = true) {
+  if (hostedTwoStepEnabled() && !verifiedHostedSession(proof, access, refresh)) return null;
   if (!access && !refresh) return null;
   const auth = authClient();
   if (access) {
@@ -114,7 +170,7 @@ export async function hostedIdentity(access?: string, refresh?: string) {
     if (data.user?.email_confirmed_at) return identity(data.user);
     if (error && (!error.status || error.status >= 500)) return authFailure(error, "");
   }
-  if (!refresh) return null;
+  if (!refresh || !allowRefresh) return null;
   const { data, error } = await auth.refreshSession({ refresh_token: refresh });
   if (error && (!error.status || error.status >= 500)) return authFailure(error, "");
   return data.user?.email_confirmed_at && data.session ? identity(data.user, data.session) : null;

@@ -19,12 +19,13 @@ export async function accountRequest<T>(payload?: Operation, query = ""): Promis
 const anonymous: AccountState = { account: null, progress: null };
 const Context = createContext<{
   state: AccountState; ready: boolean; show: () => void; setProgress: (value: Progress | null) => void;
+  setPersonalProfile: (label: string, next: AccountState) => void;
 } | null>(null);
 
 export function AccountProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AccountState>(anonymous);
   const [ready, setReady] = useState(false);
-  const [mode, setMode] = useState<"login" | "register" | "verifyEmail" | "requestReset" | "resetPassword">("login");
+  const [mode, setMode] = useState<"login" | "register" | "verifyEmail" | "verifyLoginChallenge" | "requestReset" | "resetPassword">("login");
   const [verifyAddress, setVerifyAddress] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -35,6 +36,8 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const epoch = useRef(0);
   const emailOtp = state.authMode === "email-otp";
+  const signInCode = mode === "verifyLoginChallenge";
+  const enteringCode = signInCode || mode === "verifyEmail" || mode === "resetPassword";
 
   useEffect(() => {
     let mounted = true;
@@ -78,10 +81,21 @@ export function AccountProvider({ children }: { children: ReactNode }) {
       setReady(true);
       setDeleting(false);
       setDeletionCodeSent(false);
+      if (next.needsLoginCode) {
+        setVerifyAddress(String(payload.label));
+        setMode("verifyLoginChallenge");
+        setMessage("请查收登录验证码，验证码验证步骤限 5 分钟。");
+        return;
+      }
+      if (next.registrationVerified) {
+        setMode("login");
+        setMessage("邮箱验证成功，请输入邮箱和密码登录。");
+        return;
+      }
       if (next.needsConfirmation) {
         setVerifyAddress(String(payload.label));
         setMode("verifyEmail");
-        setMessage("请查收邮件并输入验证码。");
+        setMessage(next.authMode === "password-email-code" ? "如果该邮箱可以注册，请查收验证码。已有账号可返回登录。" : "请查收邮件并输入验证码。");
         return;
       }
       if (next.reset === "sent") {
@@ -102,7 +116,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     event.preventDefault();
     const fields = new FormData(event.currentTarget);
     const op = deleting ? "deleteAccount" : emailOtp ? mode === "verifyEmail" ? "verifyLoginCode" : "sendLoginCode" : mode;
-    void transition({ op, label: mode === "verifyEmail" || mode === "resetPassword" ? verifyAddress : fields.get("label"),
+    void transition({ op, label: enteringCode ? verifyAddress : fields.get("label"),
       password: fields.get("password"), code: fields.get("code") });
   }
 
@@ -122,11 +136,13 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   const version = epoch.current;
   const resetMode = mode === "requestReset" || mode === "resetPassword";
   return <Context.Provider value={{ state, ready, show, setProgress: progress =>
-    setState(current => epoch.current === version && current.account ? { ...current, progress } : current) }}>
+    setState(current => epoch.current === version && current.account ? { ...current, progress } : current),
+    setPersonalProfile: (label, next) => setState(current => current.account?.label === label ?
+      { ...current, displayName: next.displayName, personalProfile: next.personalProfile } : current) }}>
     {children}
     <dialog ref={dialog} className="settings-dialog account-dialog" aria-labelledby="account-title">
       <div className="dialog-head"><h2 id="account-title">{state.account ? "我的账号" :
-        resetMode ? "重置密码" : mode === "verifyEmail" ? "输入邮箱验证码" : emailOtp || mode === "login" ? "登录问山" : "创建问山账号"}</h2>
+        resetMode ? "重置密码" : enteringCode ? "输入邮箱验证码" : emailOtp || mode === "login" ? "登录问山" : "创建问山账号"}</h2>
         <button type="button" className="icon-button" aria-label="关闭账号" onClick={() => dialog.current?.close()}><X size={18} /></button>
       </div>
       {state.account ? <>
@@ -155,13 +171,14 @@ export function AccountProvider({ children }: { children: ReactNode }) {
           <button type="button" className="button secondary" disabled={busy} onClick={() => void transition({ op: "logout" })}>退出登录</button>
           <button type="button" className="text-button" onClick={() => setDeleting(true)}>删除账号</button>
         </div>}
-      </> : !ready ? <p role="status">正在连接账号服务……</p> : mode === "verifyEmail" || mode === "resetPassword" ? <form className="account-form" onSubmit={submit} key={mode}>
+      </> : !ready ? <p role="status">正在连接账号服务……</p> : enteringCode ? <form className="account-form" onSubmit={submit} key={mode}>
         <p>{verifyAddress}</p>
         <EmailCodeField />
         {mode === "resetPassword" && <label>新密码<input name="password" type="password" autoComplete="new-password" minLength={10} maxLength={128} required /></label>}
         <div className="account-row">
-          <button className="button primary" type="submit" disabled={busy}>{mode === "resetPassword" ? "保存新密码" : "验证并登录"}</button>
-          <button className="text-button" type="button" disabled={busy} onClick={() => { setMode("login"); setMessage(""); }}>{emailOtp ? "更换邮箱" : "返回登录"}</button>
+          <button className="button primary" type="submit" disabled={busy}>{mode === "resetPassword" ? "保存新密码" :
+            mode === "verifyEmail" && state.authMode === "password-email-code" ? "验证邮箱" : "验证并登录"}</button>
+          <button className="text-button" type="button" disabled={busy} onClick={() => { setMode("login"); setMessage(""); }}>{emailOtp ? "更换邮箱" : signInCode ? "重新登录并发送" : "返回登录"}</button>
           {emailOtp && <button className="text-button" type="button" disabled={busy}
             onClick={() => void transition({ op: "sendLoginCode", label: verifyAddress })}>重新发送</button>}
         </div>

@@ -337,6 +337,14 @@ body:has(.journey) { background: #483930; }
 .profile-custom { margin-top: 8px; }
 .profile-consent { font-size: 12px; display: flex; align-items: flex-start; gap: 8px; margin-top: 11px; color: #4f3e32; }
 .profile-consent input { accent-color: #853f2d; }
+.profile-extra { margin-block: 13px; padding-block: 8px; border-block: 1px solid #c1a17a78; }
+.profile-extra summary, .background-field summary { cursor: pointer; min-height: 28px; align-content: center; }
+.profile-fields .profile-consent { display: flex; align-items: center; margin-top: 0; }
+.profile-fields .profile-consent input { width: auto; }
+.reading-context-fields { padding-block: 8px 2px; }
+.reading-context-fields select, .reading-context-fields input[type=date] { display: block; width: 100%; min-width: 0; border: 1px solid #a8835b; border-radius: 6px; padding: 6px; background: #fbefd9; color: #31251e; font-size: 16px; }
+.reading-context-fields textarea { width: 100%; }
+.reading-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .profile-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 13px; }
 .profile-actions .button { min-height: 38px; }
 html[data-motion=reduced] :is(.world-plate,.world-haze,.world-canopy) { transform: none !important; }

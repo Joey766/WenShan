@@ -1,6 +1,7 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
-import { emptyProfile, modelProfile, parseProfile, validBirth } from "../src/lib/profile.ts";
+import { emptyProfile, gregorianBirth, modelProfile, parseProfile, selectedProfile, validBirth, validBirthTime } from "../src/lib/profile.ts";
+import { readingFocus } from "../src/lib/reading-context.ts";
 
 test("profile gates consent, omits the full birth date, and validates calendar dates", () => {
   assert.equal(validBirth("2001-02-29", "2026-11-18"), false);
@@ -11,4 +12,25 @@ test("profile gates consent, omits the full birth date, and validates calendar d
   assert.equal(modelProfile({ ...profile, consent: false }), undefined);
   assert.equal(modelProfile(emptyProfile), undefined);
   assert.deepEqual(parseProfile(JSON.stringify(profile)), profile);
+});
+
+test("lunar DOB validates real leap months, saves optional fields, and shares summaries only", () => {
+  const base = { ...emptyProfile, birth: "2023-02-01", calendar: "lunar" as const, nickname: "访客", city: "成都，中国",
+    gender: "woman" as const, role: "学生" as const, birthTime: "子时" };
+  assert.equal(gregorianBirth(base, "2026-11-20"), "2023-02-20");
+  assert.equal(gregorianBirth({ ...base, leapMonth: true }, "2026-11-20"), "2023-03-22");
+  assert.equal(gregorianBirth({ ...base, birth: "2023-03-01", leapMonth: true }, "2026-11-20"), undefined);
+  assert.equal(gregorianBirth({ ...base, birth: "2023-12-01" }, "2026-11-20"), "2024-01-11");
+  assert.deepEqual(parseProfile(JSON.stringify(base)), base);
+  assert.ok(validBirthTime("23:59") && validBirthTime("午时") && !validBirthTime("24:00"));
+  assert.equal(selectedProfile(base, [], "2026-11-20"), undefined);
+  assert.deepEqual(selectedProfile(base, ["role", "ageBand"], "2026-11-20"), { ageBand: "未满18岁", role: "学生" });
+});
+
+test("validates custom dates without carrying stray user data in preset selections", () => {
+  assert.deepEqual(readingFocus({ period: "本周", start: "不发送" }), { period: "本周" });
+  assert.equal(readingFocus({ period: "自定义时间范围", start: "2026-02-30", end: "2026-03-02" }), undefined);
+  assert.equal(readingFocus({ period: "自定义时间范围", start: "2026-04-01", end: "2026-03-02" }), undefined);
+  assert.deepEqual(readingFocus({ period: "自定义时间范围", start: "2026-03-01", end: "2026-03-02" }),
+    { period: "自定义时间范围", start: "2026-03-01", end: "2026-03-02" });
 });

@@ -2,6 +2,8 @@
 
 每次收到「继续」先用 Codex 官方用量接口读取 300 分钟与 10,080 分钟窗口。5 小时剩余不高于 5% 或每周剩余不高于 3% 时暂停新增任务。读不到任一数字时先向用户确认。
 
+最新个人资料工作从 `dev/email-code-login` 延续到 `dev/profile-personalization`。Preview 已执行资料和登录挑战两项迁移。真实邮件未配置，待核对 SMTP 及生产 Gemini Secret；启用双步骤登录前需验证注册、登录、找回。正式库已做加密备份并应用原四项初始迁移，新增两项和发布均等待本轮明确批准。
+
 工作目录为 `D:\塔罗project`。四个独立素材包已经安全合并。先看 [开发进度](PROJECT_PROGRESS.md)、[素材盘点](ASSET_INVENTORY.md) 与 [使用说明](../README.md)。
 
 2026-11-20 Supabase 和 Vercel CLI 均已完成用户授权。两个 Free 项目已创建，仅 Preview 已迁移和配置。当前受保护 [Preview](https://wenshan-b4rvhvnlh-joey766s-projects.vercel.app) 已通过真实 A/B 和 Gemini 测试。当前 Windows 用户可从凭据管理器复用 `WenShan/Supabase/wenshan-preview/` 和 `WenShan/Supabase/wenshan-production/` 下的数据库凭据。测试账号、自动化临时访问凭据和 CLI 自动生成的 `.env.local` 已清理。

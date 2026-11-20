@@ -1,5 +1,6 @@
 import { readingEvidence } from "./knowledge.ts";
 import type { ProfileContext } from "./profile.ts";
+import type { ReadingFocus } from "./reading-context.ts";
 import { fortuneSubject, questionTopic } from "./question-context.ts";
 import { getReading, type Coins, type Reading } from "./yijing.ts";
 
@@ -10,7 +11,8 @@ export type ReadingNotice = "cloud-consent" | "cloud-quota" | "cloud-account-quo
 export type ReadingAnswer = { mode: "local" | "cloud" | "demo"; text: string; fortune?: Fortune; fallbackSections?: number; notice?: ReadingNotice };
 export type Message = { role: "user"; content: string } |
   { role: "assistant"; content: string; mode: ReadingAnswer["mode"]; details?: ReadingDetails; fallbackSections?: number };
-export type ReadingRequest = { question: string; coins: Coins[]; profile?: ProfileContext; cloudConsent?: boolean };
+export type ReadingRequest = { question: string; coins: Coins[]; focus?: ReadingFocus; background?: string;
+  profile?: ProfileContext; profileConsent?: boolean; cloudConsent?: boolean };
 export type ReadingPhase = "identifying" | "checking" | "connecting" | "explaining";
 export type ReadingEvent = { phase: ReadingPhase } | { delta: string } | { answer: ReadingAnswer };
 

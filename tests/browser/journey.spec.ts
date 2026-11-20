@@ -179,7 +179,7 @@ test("optional profile can be set, edited, and cleared without outgoing profile 
   await page.getByRole("button", { name: "个人资料", exact: true }).click();
   await expect(page.getByLabel("出生日期", { exact: true })).toHaveValue("2000-04-12");
   await expect(page.getByRole("combobox", { name: "性别" })).toHaveValue("other");
-  await expect(page.getByRole("checkbox", { name: /允许将年龄段/ })).not.toBeChecked();
+  await expect(page.getByRole("checkbox", { name: /允许将年龄段/ })).toHaveCount(0);
   await page.getByRole("combobox", { name: "性别" }).selectOption("undisclosed");
   await page.getByRole("button", { name: "保存资料" }).click();
   await page.getByRole("button", { name: "个人资料", exact: true }).click();
@@ -187,6 +187,32 @@ test("optional profile can be set, edited, and cleared without outgoing profile 
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("wenshan.profile.v1")!))).toEqual({
     birth: "", gender: "undisclosed", custom: "", consent: false,
   });
+});
+
+test("a cast sends only the categories chosen for that question and never the raw birth date", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.addInitScript(() => localStorage.setItem("wenshan.profile.v1", JSON.stringify({
+    birth: "2001-01-01", gender: "woman", custom: "", consent: true, nickname: "测试昵称", role: "求职中", city: "上海",
+  })));
+  await page.goto("/");
+  await page.getByRole("button", { name: "选择小卦同行" }).click();
+  await page.getByRole("button", { name: "入山问卦" }).click();
+  await page.getByLabel("心里的问题").fill("这周面试能通过吗？");
+  await page.getByText("补充问卦背景（选填）").click();
+  await expect(page.getByRole("checkbox", { name: "本次解读结合我的个人资料" })).not.toBeChecked();
+  await page.getByLabel("关注时间").selectOption("本周");
+  await page.getByLabel("补充背景", { exact: true }).fill("二面已结束，正在等待通知。");
+  await page.getByRole("checkbox", { name: "本次解读结合我的个人资料" }).check();
+  await page.getByRole("checkbox", { name: "当前身份 · 求职中" }).check();
+  for (let index = 0; index < 6; index++)
+    await page.getByRole("button", { name: index ? `第 ${index + 1} 次投掷` : "掷下第一爻" }).click();
+  const request = page.waitForRequest(req => req.url().endsWith("/api/reading") && req.method() === "POST");
+  await page.getByRole("button", { name: "卦成，前往观卦阁" }).click();
+  const input = (await request).postDataJSON();
+  expect(input).toMatchObject({ focus: { period: "本周" }, background: "二面已结束，正在等待通知。", profileConsent: true });
+  expect(input.profile).toEqual({ role: "求职中" });
+  expect(input.coins).toHaveLength(6);
+  expect(JSON.stringify(input)).not.toMatch(/2001-01-01|测试昵称|上海|expression/);
 });
 
 test("a cancelled reading discards delayed output and can retry without replacing the cast", async ({ page }) => {

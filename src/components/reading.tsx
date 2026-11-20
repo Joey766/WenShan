@@ -10,7 +10,6 @@ import type { Pet } from "@/lib/pets";
 import { getReading, type Coins } from "@/lib/yijing";
 import { HexagramGlyph } from "./hexagram";
 import { SceneCompanion } from "./pet-art";
-import { useProfile } from "./profile";
 import { accountRequest, useAccount } from "./account";
 
 const activity = {
@@ -79,8 +78,9 @@ function AnswerCopy({ text }: { text: string }) {
     className={sectionTitles.has(line) ? "reading-subtitle" : index === 0 ? "reading-lead" : undefined}>{line}</p>);
 }
 
-export function ReadingScene({ pet, question, casts, restart, saved, save }: {
+export function ReadingScene({ pet, question, casts, context, restart, saved, save }: {
   pet: Pet; question: string; casts: Coins[]; restart: () => void;
+  context: Pick<ReadingRequest, "background" | "focus" | "profile">;
   saved?: Message[]; save: (messages: Message[]) => Promise<string>;
 }) {
   const result = getReading(casts);
@@ -100,10 +100,7 @@ export function ReadingScene({ pet, question, casts, restart, saved, save }: {
   const activeGloss = useRef<AbortController>(null);
   const poseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tabBody = useRef<HTMLDivElement>(null);
-  const profile = useProfile();
   const { state: account, show: showAccount } = useAccount();
-  const profileRef = useRef(profile.context);
-  profileRef.current = profile.context;
   const busy = phase !== null && phase !== "cancelled";
   const archived = saved?.find((item): item is Extract<Message, { role: "assistant" }> => item.role === "assistant");
   const current = answer ?? (archived ? {
@@ -140,7 +137,7 @@ export function ReadingScene({ pet, question, casts, restart, saved, save }: {
     setTiming({ began, typical: ordered[Math.floor(ordered.length / 2)] ?? 22, measured: !!samples.length });
     clearTimeout(poseTimer.current ?? undefined);
     try {
-      const input = cloudConsent ? { question, coins: casts, cloudConsent: true } : { question, coins: casts, profile: profileRef.current };
+      const input = { question, coins: casts, ...context, cloudConsent, profileConsent: Boolean(context.profile) };
       if (cloudConsent) {
         await accountRequest().catch(() => undefined);
         controller.signal.throwIfAborted();
@@ -266,7 +263,7 @@ export function ReadingScene({ pet, question, casts, restart, saved, save }: {
               <AnswerCopy text={current?.text ?? (draft || initialJudgement)} />
             </div>
             {answer?.notice === "cloud-consent" && <p className="muted">
-              可选用 Gemini 解读。本次问题和卦象会发送给 Google。免费服务可能使用内容改进产品，请勿发送私人信息。
+              可选用 Gemini 解读。确认后，本次提问、卦象、补充背景和勾选的资料摘要会发送给 Google。免费服务可能使用内容改进产品，请勿发送私人信息。
             </p>}
             {cloudNotice === "cloud-sign-in" && <p role="status" className="muted">请登录已验证邮箱的账号，再选择是否使用 Gemini。</p>}
             {cloudNotice === "cloud-quota" && <p role="status" className="muted">网站云端 AI 调用额度已达上限。当前显示内置释意。</p>}

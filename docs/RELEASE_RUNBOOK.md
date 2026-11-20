@@ -30,7 +30,7 @@ Vercel 云函数内的文件路径无法代替持久化数据库。Ollama 只连
 | 变量 | 用途 |
 | --- | --- |
 | `WENSHAN_ACCOUNT_BACKEND` | `local` 或 `supabase` |
-| `WENSHAN_ACCOUNT_AUTH` | Supabase 邮箱验证码发信验收后设 `email-otp`，首次验证自动注册，后续同邮箱恢复原账号 |
+| `WENSHAN_ACCOUNT_AUTH` | 验证真邮件注册、登录验证码和找回后设 `password-email-code`。本站先验密码，再验同一邮箱与身份的验证码 |
 | `SUPABASE_URL`、`SUPABASE_PUBLISHABLE_KEY` | Supabase Auth API |
 | `SUPABASE_AUTH_ADMIN_KEY` | 服务端 Auth 删除账号，要求用户再次输入当前密码；业务表走独立的受限 SQL 连接 |
 | `WENSHAN_DATABASE_URL` | 应用受限 PostgreSQL 连接，Preview 与 Production 各自配置 |
@@ -45,11 +45,11 @@ Vercel 云函数内的文件路径无法代替持久化数据库。Ollama 只连
 | `WENSHAN_RELEASE` | 可选自托管版本，Vercel 优先使用 Git SHA |
 | `WENSHAN_MIGRATION_DATABASE_URL` | 管理员离线导入命令使用，服务器不需要此变量 |
 
-### 邮箱验证码登录切换
+### 邮箱密码与验证码上线
 
-1. 在 Preview Supabase 配置已获准的 SMTP。将 Magic Link 与 Confirm signup 两个模板改为发送 `{{ .Token }}`，并保留站内输入验证码。使用已有登录邮箱及新的非团队测试邮箱实测收信、过期码错误和重发限制。 [Supabase 无密码登录](https://supabase.com/docs/guides/auth/auth-email-passwordless)
-2. 只在 Vercel Preview 启用 `WENSHAN_ACCOUNT_AUTH=email-otp` 并重建。验证同一邮箱再次登录读回原来的账号、灵宠和历史。用合成账号验证删除时要求同邮箱的验证码。应用使用现有 Auth ID，无需改数据表。
-3. 正式发布获准后单独配置 Production 邮件服务与模板。Preview 试送的邮件、测试用户与密钥限定在 Preview。
+1. 在 Preview Supabase 配置获准的 SMTP，将 Magic Link、Confirm signup 和 Reset password 模板设为发送 `{{ .Token }}`。确认邮箱验证开启，每个邮箱 60 秒发送冷却，限制站点发信总量。使用非团队测试邮箱实测注册、登录、过期与重发、重置密码。 [Supabase 邮件模板](https://supabase.com/docs/guides/auth/auth-email-templates)
+2. Preview 启用 `WENSHAN_ACCOUNT_AUTH=password-email-code`。先验密码，再用绑定账号和邮箱的 5 分钟挑战验证验证码。每次挑战最多 5 次尝试，已用挑战失效。刷新沿用经双步骤验证签发的会话。部署前确保资料列和挑战表迁移已应用。
+3. 正式环境复用其独立 Supabase 项目和原域名。完成真实邮件与密码找回、生产 Gemini Secret 和限额验收，并另获新增迁移批准后再开放注册。正式发布继续走用户明确指令。
 
 ## 修改 → 预览 → 验收 → 发布
 

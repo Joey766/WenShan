@@ -1,6 +1,7 @@
 import { readCompanion, type PetId } from "./pets.ts";
 import { parseDetails, type Message } from "./interpretation.ts";
 import { isCoins, type Coins } from "./yijing.ts";
+import { readingFocus, type ReadingFocus } from "./reading-context.ts";
 
 export const historyKey = "wenshan.readings.v1";
 export const historyLimit = 24;
@@ -12,6 +13,7 @@ export type SavedReading = {
   pet: PetId;
   question: string;
   background: string;
+  focus?: ReadingFocus;
   casts: Coins[];
   messages: Message[];
 };
@@ -31,6 +33,7 @@ export function parseHistory(raw: string | null): SavedReading[] {
       const pet = readCompanion(typeof entry.pet === "string" ? entry.pet : null, null);
       if (!pet) return [];
       known.add(entry.id);
+      const focus = readingFocus(entry.focus);
       const messages = Array.isArray(entry.messages) ? entry.messages.slice(-messageLimit).filter(validMessage)
         .map(message => message.role === "assistant" ? {
           ...message,
@@ -41,7 +44,7 @@ export function parseHistory(raw: string | null): SavedReading[] {
         } : message) : [];
       return [{
         id: entry.id, createdAt: entry.createdAt, question: entry.question, background: entry.background,
-        pet, casts: entry.casts, messages,
+        ...(focus ? { focus } : {}), pet, casts: entry.casts, messages,
       }];
     });
   } catch {
