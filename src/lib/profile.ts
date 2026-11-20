@@ -10,6 +10,7 @@ export const emptyProfile: Profile = { birth: "", gender: "undisclosed", custom:
 export const ageBands = ["未满18岁", "18至24岁", "25至39岁", "40至59岁", "60岁以上"] as const;
 export type ProfileContext = { ageBand?: typeof ageBands[number]; expression?: string; role?: typeof roles[number];
   nickname?: string; birth?: string; calendar?: "solar" | "lunar"; leapMonth?: boolean; birthTime?: string; city?: string };
+export type ProfileShareField = "nickname" | "birth" | "birthTime" | "city" | "expression" | "role";
 
 export function localDate(now = new Date()) {
   return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
@@ -80,7 +81,7 @@ export function modelProfile(profile: Profile, today = localDate()): ProfileCont
   return ageBand || expression ? { ageBand, expression } : undefined;
 }
 
-export function sharedProfile(profile: Profile, today = localDate()): ProfileContext | undefined {
+export function sharedProfile(profile: Profile, today = localDate(), excluded: ProfileShareField[] = []): ProfileContext | undefined {
   const birthday = gregorianBirth(profile, today);
   const result: ProfileContext = { ...modelProfile({ ...profile, birth: birthday ?? "", consent: true }, today) };
   if (profile.nickname) result.nickname = profile.nickname;
@@ -91,6 +92,12 @@ export function sharedProfile(profile: Profile, today = localDate()): ProfileCon
     result.birth = profile.birth;
     result.calendar = profile.calendar === "lunar" ? "lunar" : "solar";
     if (result.calendar === "lunar" && profile.leapMonth) result.leapMonth = true;
+  }
+  for (const field of excluded) delete result[field];
+  if (!result.birth) {
+    delete result.ageBand;
+    delete result.calendar;
+    delete result.leapMonth;
   }
   return Object.keys(result).length ? result : undefined;
 }

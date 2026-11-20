@@ -28,6 +28,7 @@ test("lunar DOB validates real leap months and the authorized payload preserves 
   assert.deepEqual(sharing, { ageBand: "未满18岁", expression: "女", nickname: "访客", role: "学生", city: "成都，中国",
     birthTime: "子时", birth: "2023-02-01", calendar: "lunar", leapMonth: true });
   assert.ok(validSharedProfile(sharing));
+  assert.deepEqual(sharedProfile(base, "2026-11-20", ["birth", "city", "nickname", "birthTime", "expression"]), { role: "学生" });
   assert.ok(!validSharedProfile({ ...sharing, phone: "should never be present" }));
 });
 

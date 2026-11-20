@@ -265,7 +265,7 @@ export function ReadingScene({ pet, question, casts, context, restart, saved, sa
               <AnswerCopy text={current?.text ?? (draft || initialJudgement)} />
             </div>
             {answer?.notice === "cloud-consent" && <p className="muted">
-              可选用 Gemini 解读。确认后会将提问、卦象和补充背景发送给 Google。已选择结合个人资料时，已填写的资料也会一并发送。免费服务可能使用内容改进产品。
+              可选用 Gemini 解读。确认后会将提问、卦象和补充背景发送给 Google。勾选参与本次解读的资料也会一并发送。免费服务可能使用内容改进产品。
             </p>}
             {cloudNotice === "cloud-sign-in" && <p role="status" className="muted">请登录已验证邮箱的账号，再选择是否使用 Gemini。</p>}
             {cloudNotice === "cloud-quota" && <p role="status" className="muted">网站云端 AI 调用额度已达上限。当前显示内置释意。</p>}

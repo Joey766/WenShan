@@ -2,11 +2,15 @@
 
 每次收到「继续」先用 Codex 官方用量接口读取 300 分钟与 10,080 分钟窗口。5 小时剩余不高于 5% 或每周剩余不高于 3% 时暂停新增任务。读不到任一数字时先向用户确认。
 
-最新个人资料工作从 `dev/email-code-login` 延续到 `dev/profile-personalization`。Preview 已执行资料和登录挑战两项迁移。真实邮件未配置，待核对 SMTP 及生产 Gemini Secret；启用双步骤登录前需验证注册、登录、找回。正式库已做加密备份并应用原四项初始迁移，新增两项和发布均等待本轮明确批准。
+2026-11-20 已执行用户批准的 `20261120000100`（可选个人资料列）和 `20261120000200`（登录挑战表）。已复查正式库迁移清单、行级安全和运行角色权限。加密备份与验证见[云端部署状态](CLOUD_DEPLOYMENT_STATUS.md)。正式 Supabase 项目是 `qbcbtarlmgzmfbhkitig`，Preview 是 `zribhqvanbrfipchjgkg`。不要重复执行迁移。
+
+下一步等用户保存正式项目的 Custom SMTP。随后用真实收件地址验收注册、密码登录、登录验证码、找回密码、账号隔离和 Gemini 流式解卦，再按当前授权首次公开发布。正式公开注册仍关闭，Production 追踪仍指向 `release/production-hold`。已有 Gemini Sensitive 变量覆盖两个环境。发布前核对 `main`、公开访问、生产密钥及数据源。五天换宠延后。
+
+登录代码延续 `dev/profile-personalization`，混合模式是 `WENSHAN_ACCOUNT_AUTH=password-or-email-code`。注册需要密码和确认验证码，登录在密码或已注册邮箱验证码中任选一种，刷新复用已有会话。问心台选填背景常显。个人资料授权逐卦默认关闭，开启时可逐项调整发送给 Gemini 的资料；时间与背景可改到提交解卦前。
 
 工作目录为 `D:\塔罗project`。四个独立素材包已经安全合并。先看 [开发进度](PROJECT_PROGRESS.md)、[素材盘点](ASSET_INVENTORY.md) 与 [使用说明](../README.md)。
 
-2026-11-20 Supabase 和 Vercel CLI 均已完成用户授权。两个 Free 项目已创建，仅 Preview 已迁移和配置。当前受保护 [Preview](https://wenshan-b4rvhvnlh-joey766s-projects.vercel.app) 已通过真实 A/B 和 Gemini 测试。当前 Windows 用户可从凭据管理器复用 `WenShan/Supabase/wenshan-preview/` 和 `WenShan/Supabase/wenshan-production/` 下的数据库凭据。测试账号、自动化临时访问凭据和 CLI 自动生成的 `.env.local` 已清理。
+2026-11-20 Supabase 和 Vercel CLI 均已完成用户授权。两个 Free 项目已完成各自的数据库迁移。早期受保护 [Preview](https://wenshan-b4rvhvnlh-joey766s-projects.vercel.app) 已通过真实 A/B 和 Gemini 测试。当前 Windows 用户可从凭据管理器复用 `WenShan/Supabase/wenshan-preview/` 和 `WenShan/Supabase/wenshan-production/` 下的数据库凭据。
 
 上线进度见 [云端部署状态](CLOUD_DEPLOYMENT_STATUS.md) 与 [发布与恢复手册](RELEASE_RUNBOOK.md)。`dev/launch-readiness` 的 Git 提交 `75708c1` 已包含 TLS CA 修复，Git 触发的 [Preview](https://wenshan-7yunbiguo-joey766s-projects.vercel.app) 已通过实际健康检查。长期日常改动在验证后可自动推送开发分支，合并 `main` 仍须用户明确要求。邮箱验证码登录在 `dev/email-code-login`，待有可用 SMTP 后按手册完成试送，再启用验证码模式。正式库迁移须独立批准，正式发布仍暂停。
 

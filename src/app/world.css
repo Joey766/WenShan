@@ -111,7 +111,8 @@ body:has(.journey) { background: #483930; }
 .scene-heading h1 { line-height: 1.15; font-size: clamp(38px,5.2vw,84px); font-weight: 770; letter-spacing: .11em; margin-block: .08em .1em; }
 .scene-heading > p { font-size: 13px; color: #ffecd3; }
 .world-cast .casting-form { position: absolute; z-index: 3; left: var(--world-edge); bottom: max(77px, 13.2dvh); width: clamp(235px, 21vw, 365px); min-width: 0; padding: 13px 15px; background: #302420eb; border: 1px solid #edd5a36d; border-radius: 10px; box-shadow: 0 6px 24px #2a1c1652; color: #fff0d8; }
-.world-cast .field label, .world-cast .background-field summary { color: #f5dca6; }
+.world-cast .casting-form { max-height: calc(100dvh - var(--world-top) - max(77px, 13.2dvh) - 118px); overflow-y: auto; }
+.world-cast .field label { color: #f5dca6; }
 .world-cast textarea { resize: vertical; background: #fbefd9; color: #31251e; border-color: #a8835b; min-height: 41px; }
 .world-cast .field-error { color: #ffbc9d; }
 .context-ideas { font-size: 11px; line-height: 1.5; color: #f8e3c0; margin-top: 5px; }
@@ -276,7 +277,7 @@ body:has(.journey) { background: #483930; }
   .journey .entry-dock .world-primary { min-height: 47px; font-size: 15px; }
   .world-coordinate, .history-button { bottom: max(13px,calc(env(safe-area-inset-bottom) + 9px)); font-size: 11px; }
   .history-button { padding: 5px 9px; }
-  .world-cast .casting-form { top: calc(var(--world-top) + 82px); bottom: auto; width: calc(100% - 2 * var(--world-edge)); max-height: 32dvh; overflow-y: auto; padding: 7px 9px; gap: 2px; }
+  .world-cast .casting-form { top: calc(var(--world-top) + 82px); bottom: auto; width: calc(100% - 2 * var(--world-edge)); max-height: min(38dvh, calc(100dvh - var(--world-top) - 250px)); padding: 7px 9px; gap: 4px; }
   .world-cast textarea { min-height: 35px; padding: 6px 8px; font-size: 16px; line-height: 1.2; }
   .world-cast .field { gap: 3px; }
   .world-cast .coin-stage { top: 61.5%; width: 86%; height: min(36dvh, 320px); }
@@ -338,10 +339,11 @@ body:has(.journey) { background: #483930; }
 .profile-consent { font-size: 12px; display: flex; align-items: flex-start; gap: 8px; margin-top: 11px; color: #4f3e32; }
 .profile-consent input { accent-color: #853f2d; }
 .profile-extra { margin-block: 13px; padding-block: 8px; border-block: 1px solid #c1a17a78; }
-.profile-extra summary, .background-field summary { cursor: pointer; min-height: 28px; align-content: center; }
+.profile-extra summary { cursor: pointer; min-height: 28px; align-content: center; }
 .profile-fields .profile-consent { display: flex; align-items: center; margin-top: 0; }
 .profile-fields .profile-consent input { width: auto; }
-.reading-context-fields { padding-block: 8px 2px; }
+.reading-context-fields { padding-block: 5px 2px; }
+.reading-context-fields .profile-consent { align-items: center; margin-top: 3px; }
 .reading-context-fields select, .reading-context-fields input[type=date] { display: block; width: 100%; min-width: 0; border: 1px solid #a8835b; border-radius: 6px; padding: 6px; background: #fbefd9; color: #31251e; font-size: 16px; }
 .reading-context-fields textarea { width: 100%; }
 .reading-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }

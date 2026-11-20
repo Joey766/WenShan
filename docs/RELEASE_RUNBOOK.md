@@ -30,7 +30,7 @@ Vercel 云函数内的文件路径无法代替持久化数据库。Ollama 只连
 | 变量 | 用途 |
 | --- | --- |
 | `WENSHAN_ACCOUNT_BACKEND` | `local` 或 `supabase` |
-| `WENSHAN_ACCOUNT_AUTH` | 验证真邮件注册、登录验证码和找回后设 `password-email-code`。本站先验密码，再验同一邮箱与身份的验证码 |
+| `WENSHAN_ACCOUNT_AUTH` | v1.0 使用 `password-or-email-code`。首次注册需要密码及确认邮箱验证码。已注册账号登录可选密码或一次性邮箱验证码 |
 | `SUPABASE_URL`、`SUPABASE_PUBLISHABLE_KEY` | Supabase Auth API |
 | `SUPABASE_AUTH_ADMIN_KEY` | 服务端 Auth 删除账号，要求用户再次输入当前密码；业务表走独立的受限 SQL 连接 |
 | `WENSHAN_DATABASE_URL` | 应用受限 PostgreSQL 连接，Preview 与 Production 各自配置 |
@@ -48,8 +48,8 @@ Vercel 云函数内的文件路径无法代替持久化数据库。Ollama 只连
 ### 邮箱密码与验证码上线
 
 1. 在 Preview Supabase 配置获准的 SMTP，将 Magic Link、Confirm signup 和 Reset password 模板设为发送 `{{ .Token }}`。确认邮箱验证开启，每个邮箱 60 秒发送冷却，限制站点发信总量。使用非团队测试邮箱实测注册、登录、过期与重发、重置密码。 [Supabase 邮件模板](https://supabase.com/docs/guides/auth/auth-email-templates)
-2. Preview 启用 `WENSHAN_ACCOUNT_AUTH=password-email-code`。先验密码，再用绑定账号和邮箱的 5 分钟挑战验证验证码。每次挑战最多 5 次尝试，已用挑战失效。刷新沿用经双步骤验证签发的会话。部署前确保资料列和挑战表迁移已应用。
-3. 正式环境复用其独立 Supabase 项目和原域名。完成真实邮件与密码找回、生产 Gemini Secret 和限额验收，并另获新增迁移批准后再开放注册。正式发布继续走用户明确指令。
+2. 在目标测试环境设置 `WENSHAN_ACCOUNT_AUTH=password-or-email-code`。确认密码可以单独登录，验证码登录只允许已有账号，注册验证与找回验证码不能互用，错误和过期验证码被拒，刷新保持会话。部署前核对资料列和登录挑战表的迁移记录。
+3. 正式环境复用其独立 Supabase 项目和原域名。先用真实邮箱核对注册、密码登录、登录验证码和密码找回，再验证独立账号的资料与宠物隔离、生产 Gemini 流式输出和限额。首次发布按本轮授权在必要项通过后执行。以后每次正式发布仍须用户明确指令。
 
 ## 修改 → 预览 → 验收 → 发布
 

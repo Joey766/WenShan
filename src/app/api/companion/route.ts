@@ -7,7 +7,7 @@ import { accountDb, AccountError, bindPet, castLine, equip, progressFor, reading
 
 import { accountBackend, accessCookie, refreshCookie, hostedDelete, hostedIdentity, hostedLogout, hostedSignIn,
   hostedRequestReset, hostedCompleteReset, hostedEmailOtpEnabled, hostedSendEmailCode, hostedVerifyEmailCode,
-  hostedTwoStepEnabled, startHostedLoginChallenge, completeHostedLoginChallenge, loginChallengeCookie,
+  hostedHybridLoginEnabled, hostedTwoStepEnabled, startHostedLoginChallenge, completeHostedLoginChallenge, loginChallengeCookie,
   loginChallengeMaxAge, sealHostedSession, sessionProofCookie,
   withHostedOwner, type HostedIdentity } from "@/lib/server/hosted-accounts";
 import { logEvent } from "@/lib/server/observability";
@@ -53,7 +53,8 @@ const currentHosted = (request: NextRequest) =>
   hostedIdentity(request.cookies.get(accessCookie)?.value, request.cookies.get(refreshCookie)?.value,
     request.cookies.get(sessionProofCookie)?.value);
 
-const hostedState = () => ({ backend: "supabase", authMode: hostedTwoStepEnabled() ? "password-email-code" : hostedEmailOtpEnabled() ? "email-otp" : "password" });
+const hostedState = () => ({ backend: "supabase", authMode: hostedHybridLoginEnabled() ? "password-or-email-code" :
+  hostedTwoStepEnabled() ? "password-email-code" : hostedEmailOtpEnabled() ? "email-otp" : "password" });
 const hostedGuest = () => ({ account: null, progress: null, ...hostedState() });
 
 function backend() {
@@ -143,6 +144,7 @@ export async function POST(request: NextRequest) {
 
 async function hostedPost(request: NextRequest, op: unknown, data: Record<string, unknown>) {
   const emailOtp = hostedEmailOtpEnabled();
+  const hybrid = hostedHybridLoginEnabled();
   const twoStep = hostedTwoStepEnabled();
   if (twoStep && (op === "login" || op === "verifyLoginChallenge")) {
     if (typeof data.label !== "string") return json({ error: "请填写邮箱。" }, 400);
@@ -161,11 +163,14 @@ async function hostedPost(request: NextRequest, op: unknown, data: Record<string
     return response;
   }
   if (op === "sendLoginCode" || op === "verifyLoginCode") {
-    if (!emailOtp) return json({ error: "邮箱验证码登录暂未启用。" }, 409);
+    if (!emailOtp && !hybrid) return json({ error: "邮箱验证码登录暂未启用。" }, 409);
     if (typeof data.label !== "string") return json({ error: "请填写邮箱。" }, 400);
     const email = data.label.trim().toLowerCase();
     if (op === "sendLoginCode") {
-      await hostedSendEmailCode(email, true);
+      try { await hostedSendEmailCode(email, false); }
+      catch (error) {
+        if (!(error instanceof AccountError && (error.status === 401 || error.status === 429))) throw error;
+      }
       return json({ ...hostedGuest(), needsConfirmation: true });
     }
     const user = await hostedVerifyEmailCode(email, data.code);
@@ -178,12 +183,15 @@ async function hostedPost(request: NextRequest, op: unknown, data: Record<string
     if (typeof data.label !== "string") return json({ error: "请填写邮箱。" }, 400);
     const email = data.label.trim().toLowerCase();
     if (op === "requestReset") {
-      await hostedRequestReset(email);
-      return json({ account: null, progress: null, backend: "supabase", reset: "sent" });
+      try { await hostedRequestReset(email); }
+      catch (error) {
+        if (!(hybrid && error instanceof AccountError && error.status === 429)) throw error;
+      }
+      return json({ ...hostedGuest(), reset: "sent" });
     }
     if (!checkPassword(data.password)) return json({ error: "新密码至少 10 位。" }, 400);
     await hostedCompleteReset(email, data.code, data.password);
-    return hostedCookies(request, json({ account: null, progress: null, backend: "supabase", reset: "completed" }), undefined, true);
+    return hostedCookies(request, json({ ...hostedGuest(), reset: "completed" }), undefined, true);
   }
   if (op === "register" || op === "login" || op === "verifyEmail") {
     if (typeof data.label !== "string" || (op !== "verifyEmail" && !checkPassword(data.password)))
@@ -193,15 +201,21 @@ async function hostedPost(request: NextRequest, op: unknown, data: Record<string
       await hostedVerifyEmailCode(email, data.code);
       return hostedCookies(request, json({ ...hostedGuest(), registrationVerified: true }), undefined, true);
     }
+    if (hybrid && op === "verifyEmail") {
+      const user = await hostedVerifyEmailCode(email, data.code);
+      const result = await withHostedOwner(user.subject, (tx, owner) => accountPayload(tx, owner, user.label, false, true));
+      return hostedCookies(request, json(result), user.renewal);
+    }
     let user: HostedIdentity | null;
     try {
       user = await hostedSignIn(email, checkPassword(data.password) ? data.password : "", op, data.code);
     } catch (error) {
-      if (!(twoStep && op === "register" && error instanceof AccountError && error.status === 401)) throw error;
+      if (!((twoStep || hybrid) && op === "register" && error instanceof AccountError &&
+        (error.status === 401 || error.status === 429))) throw error;
       user = null;
     }
-    if (twoStep && op === "register") return json({ ...hostedGuest(), needsConfirmation: true });
-    if (!user) return json({ account: null, progress: null, backend: "supabase", needsConfirmation: true });
+    if ((twoStep || hybrid) && op === "register") return json({ ...hostedGuest(), needsConfirmation: true });
+    if (!user) return json({ ...hostedGuest(), needsConfirmation: true });
     const result = await withHostedOwner(user.subject, (tx, owner) => accountPayload(tx, owner, user.label, false, true));
     return hostedCookies(request, json(result), user.renewal);
   }

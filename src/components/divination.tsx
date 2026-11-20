@@ -5,7 +5,7 @@ import { ArrowRight, CircleDot, RotateCw, SkipForward, Sparkles } from "lucide-r
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { coinFace, lineFromCoins, type Coins } from "@/lib/yijing";
 import type { Pet } from "@/lib/pets";
-import { sharedProfile, type Profile } from "@/lib/profile";
+import { sharedProfile, type Profile, type ProfileShareField } from "@/lib/profile";
 import { readingFocus, readingRanges, type ReadingFocus } from "@/lib/reading-context";
 import { SceneCompanion } from "./pet-art";
 import { LineBoard } from "./hexagram";
@@ -14,7 +14,7 @@ const CoinStage = dynamic(() => import("./coin-stage"), { ssr: false });
 const tossDuration = 1740;
 
 export function Divination({ pet, visible, question, setQuestion, casts, addCast, proceed, reduced, getCoins,
-  background, setBackground, focus, setFocus, usePersonal, setUsePersonal, profile }: {
+  background, setBackground, focus, setFocus, usePersonal, setUsePersonal, profile, excludedProfile, setExcludedProfile }: {
   pet: Pet; question: string; setQuestion: (text: string) => void; casts: Coins[];
   addCast: (result: Coins) => void; proceed: () => void; reduced: boolean;
   visible: boolean; getCoins: () => Promise<Coins>;
@@ -22,20 +22,29 @@ export function Divination({ pet, visible, question, setQuestion, casts, addCast
   focus: ReadingFocus; setFocus: (value: ReadingFocus) => void;
   usePersonal: boolean; setUsePersonal: (value: boolean) => void;
   profile: Profile;
+  excludedProfile: ProfileShareField[]; setExcludedProfile: (value: ProfileShareField[]) => void;
 }) {
   const [pending, setPending] = useState<Coins>();
   const [started, setStarted] = useState<number>();
   const [validation, setValidation] = useState(false);
   const [requesting, setRequesting] = useState(false);
   const [castError, setCastError] = useState("");
+  const [timeError, setTimeError] = useState(false);
+  const rangeStart = useRef<HTMLInputElement>(null);
   const requestingRef = useRef(false);
   const active = useRef<Coins | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const last = casts.at(-1);
   const lastLine = last && lineFromCoins(last);
   const complete = casts.length === 6;
-  const locked = casts.length > 0 || !!pending || requesting;
+  const questionLocked = casts.length > 0 || !!pending || requesting;
   const available = usePersonal ? sharedProfile(profile) : undefined;
+  const shareChoices: [ProfileShareField, string, string | undefined][] = available ? [
+    ["nickname", "昵称", available.nickname],
+    ["birth", "出生日期", available.birth && `${available.calendar === "lunar" ? "农历" : "公历"}${available.leapMonth ? "闰月 " : " "}${available.birth}`],
+    ["birthTime", "出生时间", available.birthTime], ["city", "出生城市", available.city],
+    ["expression", "性别", available.expression], ["role", "当前身份", available.role],
+  ] : [];
 
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
 
@@ -58,10 +67,6 @@ export function Divination({ pet, visible, question, setQuestion, casts, addCast
       document.getElementById("question")?.focus();
       return;
     }
-    if (focus.period === "自定义时间范围" && !readingFocus(focus)) {
-      setCastError("请填写有效的起止日期，或选择不限定。");
-      return;
-    }
     requestingRef.current = true;
     setRequesting(true);
     setCastError("");
@@ -76,6 +81,20 @@ export function Divination({ pet, visible, question, setQuestion, casts, addCast
     finally { requestingRef.current = false; setRequesting(false); }
   }
 
+  function updateFocus(value: ReadingFocus) {
+    setFocus(value);
+    setTimeError(false);
+  }
+
+  function openReading() {
+    if (focus.period === "自定义时间范围" && !readingFocus(focus)) {
+      setTimeError(true);
+      rangeStart.current?.focus();
+      return;
+    }
+    proceed();
+  }
+
   return (
     <div className="world-cast" data-drawing={!!pending}>
       <div className="scene-heading">
@@ -83,41 +102,37 @@ export function Divination({ pet, visible, question, setQuestion, casts, addCast
         <h1 tabIndex={-1} id="act-title">问心台</h1>
         <p>投三枚铜钱，六次成卦。</p>
       </div>
-        <form id="casting-form" className="paper casting-form" onSubmit={throwCoins}>
+        <form id="casting-form" className="paper casting-form" noValidate onSubmit={throwCoins}>
           <div className="field"><label htmlFor="question">心里的问题</label>
-            <textarea id="question" value={question} maxLength={240} rows={2} readOnly={locked}
+            <textarea id="question" value={question} maxLength={240} rows={2} readOnly={questionLocked}
               onChange={event => { setQuestion(event.target.value); setValidation(false); }}
               placeholder="例如：我今天运气好吗？" aria-invalid={validation} aria-describedby={validation ? "question-error" : undefined} />
             {validation && <p className="field-error" id="question-error">先写下你想问的一件事。</p>}
             {castError && <p className="field-error" role="alert">{castError}</p>}
           </div>
-          <details className="background-field"><summary>补充问卦背景（选填）</summary>
             <div className="field reading-context-fields">
-              <label>关注时间 <select value={focus.period} disabled={locked}
-                onChange={event => setFocus({ period: event.target.value as ReadingFocus["period"] })}>
+              <label>关注时间 <select value={focus.period}
+                onChange={event => updateFocus({ period: event.target.value as ReadingFocus["period"] })}>
                 {readingRanges.map(period => <option key={period}>{period}</option>)}
               </select></label>
               {focus.period === "自定义时间范围" && <div className="reading-dates">
-                <label>开始 <input type="date" value={focus.start ?? ""} disabled={locked} required onChange={event => setFocus({ ...focus, start: event.target.value })} /></label>
-                <label>结束 <input type="date" value={focus.end ?? ""} min={focus.start} disabled={locked} required onChange={event => setFocus({ ...focus, end: event.target.value })} /></label>
+                <label>开始 <input ref={rangeStart} type="date" value={focus.start ?? ""} required aria-invalid={timeError}
+                  aria-describedby={timeError ? "reading-range-error" : undefined} onChange={event => updateFocus({ ...focus, start: event.target.value })} /></label>
+                <label>结束 <input type="date" value={focus.end ?? ""} min={focus.start} required onChange={event => updateFocus({ ...focus, end: event.target.value })} /></label>
               </div>}
-              <label>补充背景 <textarea value={background} rows={2} maxLength={480} readOnly={locked}
+              {timeError && <p className="field-error" id="reading-range-error" role="alert">请填写有效的起止日期，或选择不限定。</p>}
+              <label>补充背景（选填） <textarea value={background} rows={2} maxLength={480}
                 placeholder="例如：下周有一场重要考试，最近复习得不太理想……" onChange={event => setBackground(event.target.value)} /></label>
-              <label className="profile-consent"><input type="checkbox" disabled={locked} checked={usePersonal}
+              <label className="profile-consent"><input type="checkbox" checked={usePersonal}
                 onChange={event => setUsePersonal(event.target.checked)} /> 本次解读结合我的个人资料</label>
               {usePersonal && <div className="context-ideas">
-                <p>{available ? "确认使用 Gemini 后，下方已填写的资料将一起发给 Google。" : "你还没有填写个人资料。"}</p>
-                {available && <ul>
-                  {available.nickname && <li>昵称 · {available.nickname}</li>}
-                  {available.birth && <li>出生日期 · {available.calendar === "lunar" ? "农历" : "公历"}{available.leapMonth ? "闰月 " : " "}{available.birth}</li>}
-                  {available.birthTime && <li>出生时间 · {available.birthTime}</li>}
-                  {available.city && <li>出生城市 · {available.city}</li>}
-                  {available.expression && <li>性别 · {available.expression}</li>}
-                  {available.role && <li>当前身份 · {available.role}</li>}
-                </ul>}
+                <p>{available ? "使用 Gemini 时，以下勾选的资料会发送给 Google。" : "你还没有填写个人资料。"}</p>
+                {shareChoices.map(([key, label, value]) => value && <label className="profile-consent" key={key}>
+                  <input type="checkbox" checked={!excludedProfile.includes(key)} onChange={event => setExcludedProfile(event.target.checked ?
+                    excludedProfile.filter(field => field !== key) : [...excludedProfile, key])} />{label} · {value}
+                </label>)}
               </div>}
             </div>
-          </details>
         </form>
         <div className="terrace">
           <img className="world-ring" src="/art/world/ring.webp" alt="" />
@@ -127,7 +142,7 @@ export function Divination({ pet, visible, question, setQuestion, casts, addCast
           {pending && <button type="button" className="ghost-button toss-skip" onClick={settle}><SkipForward size={14} /> 直接看结果</button>}
         </div>
         <div className="cast-controls">
-          {complete ? <button type="button" className="button primary" onClick={proceed}><Sparkles size={17} /> 卦成，前往观卦阁 <ArrowRight size={16} /></button> :
+          {complete ? <button type="button" className="button primary" onClick={openReading}><Sparkles size={17} /> 卦成，前往观卦阁 <ArrowRight size={16} /></button> :
             <button type="submit" form="casting-form" className="button primary" disabled={!!pending || requesting}><CircleDot size={17} /> {requesting ? "准备铜钱" : pending ? "铜钱飞起" : casts.length ? `第 ${casts.length + 1} 次投掷` : "掷下第一爻"}</button>}
           {!pending && last && lastLine && <span className="mobile-result" aria-hidden="true">
             {last.map(coin => coinFace[coin][0] + coin).join(" · ")}　{lastLine.value} {lastLine.name}{lastLine.moving ? " · 动爻" : ""}

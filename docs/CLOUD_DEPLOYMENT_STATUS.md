@@ -2,6 +2,12 @@
 
 ## 实际状态
 
+2026-11-20 已将 `20261120000100_personal_profile.sql` 和 `20261120000200_login_challenges.sql` 应用至正式库。SQL 文件逐一核对发布候选 SHA `3636c5b`，CLI 迁移预演只列出这两项，执行后预演无待运行迁移。复查资料表强制 RLS、登录挑战表 RLS、运行角色无 `BYPASSRLS`，普通业务角色无法读取登录挑战。实际运行前无正式账号。
+
+正式库迁移前备份位于当前 Windows 用户权限下的 `.work/backups/wenshan-production-pre-v1-20261120-062038.pgdump.dpapi`，SHA-256 为 `60C3E93EF58D21340CA31DB8EB9DED3E4FDA799C131EBA6E62017C878B109766`。已解密核对归档目录，并实际解包 Auth 及 companion 的 SQL 数据流。没有把备份写入版本库。
+
+正式项目保持邮箱确认必需，公开注册仍关闭。自定义 SMTP 首次核查为空，正式注册、登录验证码和找回密码邮件均须真实投递验收。正式公开部署暂缓。
+
 | 服务 | 已核验事实 |
 | --- | --- |
 | GitHub | [WenShan 私有仓库](https://github.com/Joey766/WenShan) 的 `dev/launch-readiness` 已推送 `7c16642`，[GitHub Actions](https://github.com/Joey766/WenShan/actions/runs/44479012572) 构建、TypeScript、单测及 20 项浏览器测试已通过。私库方案的规则集不强制执行 |
@@ -33,7 +39,7 @@ Vercel 在连接 Git 时把唯一的开发分支选作 Production，构建门控
 
 2026-11-20 核验正式库没有用户、问山业务表或存储对象，导出并通过 DPAPI 解密、归档目录和 Auth/Storage 解包检查的加密备份。正式库已应用原四项初始迁移，受限角色和 A/B 合成账号隔离通过。正式 Supabase 密钥在诊断输出事件后已撤销并更换，Vercel Production 已写入替代 Secret，Preview 独立密钥照常使用。未发布正式网站。
 
-资料列与登录挑战表对应 `20261120000100`、`20261120000200`，已备份并应用至 Preview。正式应用这两项需额外批准。公开注册、密码找回与生产 Gemini Key 仍待完成。
+Preview 和 Production 已分别应用资料列与登录挑战表的两项迁移。生产 Vercel 已具有 Gemini Secret，首次生产 Gemini 调用与实际配额表现仍须验收。
 
 最初的 4 个文件已经在隔离 Preview 及空白 Production 库完成核验：
 

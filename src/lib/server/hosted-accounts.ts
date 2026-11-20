@@ -66,6 +66,10 @@ export function hostedEmailOtpEnabled() {
   return process.env.WENSHAN_ACCOUNT_AUTH === "email-otp";
 }
 
+export function hostedHybridLoginEnabled() {
+  return process.env.WENSHAN_ACCOUNT_AUTH === "password-or-email-code";
+}
+
 export function hostedTwoStepEnabled() {
   return process.env.WENSHAN_ACCOUNT_AUTH === "password-email-code";
 }

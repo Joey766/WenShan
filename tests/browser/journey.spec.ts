@@ -90,7 +90,7 @@ test("choose each companion, persist on reload, go through all three acts, and r
   await page.getByRole("button", { name: "掷下第一爻" }).click();
   await expect(page.getByText("先写下你想问的一件事。")).toBeVisible();
   await page.getByLabel("心里的问题").fill("我下周的考试能过吗？");
-  await expect(page.getByText("补充背景（选填）")).toHaveCount(0);
+  await expect(page.getByRole("textbox", { name: "补充背景（选填）" })).toBeVisible();
   const names: Record<number, string> = { 6: "老阴", 7: "少阳", 8: "少阴", 9: "老阳" };
   const casts: number[][] = [];
   for (let i = 1; i <= 6; i++) {
@@ -198,20 +198,31 @@ test("a cast uses all filled facts after per-reading consent", async ({ page }) 
   await page.getByRole("button", { name: "选择小卦同行" }).click();
   await page.getByRole("button", { name: "入山问卦" }).click();
   await page.getByLabel("心里的问题").fill("这周面试能通过吗？");
-  await page.getByText("补充问卦背景（选填）").click();
-  await expect(page.getByRole("checkbox", { name: "本次解读结合我的个人资料" })).not.toBeChecked();
-  await page.getByLabel("关注时间").selectOption("本周");
-  await page.getByLabel("补充背景", { exact: true }).fill("二面已结束，正在等待通知。");
-  await page.getByRole("checkbox", { name: "本次解读结合我的个人资料" }).check();
-  await expect(page.getByText("出生城市 · 上海", { exact: true })).toBeVisible();
+  const consent = page.getByRole("checkbox", { name: "本次解读结合我的个人资料" });
+  const time = page.getByLabel("关注时间");
+  const background = page.getByLabel("补充背景（选填）", { exact: true });
+  await expect(consent).not.toBeChecked();
+  await expect(time).toBeVisible();
+  await expect(background).toBeVisible();
   for (let index = 0; index < 6; index++)
     await page.getByRole("button", { name: index ? `第 ${index + 1} 次投掷` : "掷下第一爻" }).click();
+  await time.selectOption("自定义时间范围");
+  await page.getByRole("button", { name: "卦成，前往观卦阁" }).click();
+  await expect(page.locator("#reading-range-error")).toHaveText("请填写有效的起止日期，或选择不限定。");
+  await time.selectOption("本周");
+  await background.fill("二面已结束，正在等待通知。");
+  await consent.check();
+  await expect(page.getByText("出生城市 · 上海", { exact: true })).toBeVisible();
   const request = page.waitForRequest(req => req.url().endsWith("/api/reading") && req.method() === "POST");
   await page.getByRole("button", { name: "卦成，前往观卦阁" }).click();
   const input = (await request).postDataJSON();
   expect(input).toMatchObject({ focus: { period: "本周" }, background: "二面已结束，正在等待通知。", profileConsent: true });
   expect(input.profile).toMatchObject({ role: "求职中", expression: "女", birth: "2001-01-01", calendar: "solar", nickname: "测试昵称", city: "上海" });
   expect(input.coins).toHaveLength(6);
+  await page.getByRole("button", { name: "再问一卦" }).click();
+  await page.getByRole("button", { name: "入山问卦" }).click();
+  await expect(consent).not.toBeChecked();
+  await expect(background).toHaveValue("");
 });
 
 test("a cancelled reading discards delayed output and can retry without replacing the cast", async ({ page }) => {
