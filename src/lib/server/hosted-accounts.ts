@@ -12,9 +12,10 @@ const globals = globalThis as typeof globalThis & { wenshanPool?: Pool };
 export function hostedPool() {
   const connectionString = process.env.WENSHAN_DATABASE_URL;
   if (!connectionString) throw new Error("Missing PostgreSQL runtime connection");
+  const ca = process.env.WENSHAN_DATABASE_CA;
   return globals.wenshanPool ??= new Pool({
     connectionString, max: 3, connectionTimeoutMillis: 3500, query_timeout: 5000,
-    ssl: process.env.WENSHAN_DB_SSL === "disable" && !process.env.VERCEL ? false : { rejectUnauthorized: true },
+    ssl: process.env.WENSHAN_DB_SSL === "disable" && !process.env.VERCEL ? false : { rejectUnauthorized: true, ca },
   }).on("error", () => console.error(JSON.stringify({ event: "database_idle_connection_error" })));
 }
 

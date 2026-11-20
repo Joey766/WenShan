@@ -1,5 +1,7 @@
 # 问山发布与恢复手册
 
+当前实际配置见 [云端部署状态](CLOUD_DEPLOYMENT_STATUS.md)。Hobby 项目现已启用 Vercel Authentication 的 Standard Protection，临时生产追踪为 `release/production-hold`，生产域名自动分配关闭。GitHub 开发分支可直接走 Preview。Vercel 要求所填生产分支实际存在，首次生产条件未齐时保留停放分支。
+
 ## 环境隔离
 
 | 环境 | 入口 | 数据与 AI |
@@ -31,6 +33,7 @@ Vercel 云函数内的文件路径无法代替持久化数据库。Ollama 只连
 | `SUPABASE_URL`、`SUPABASE_PUBLISHABLE_KEY` | Supabase Auth API |
 | `SUPABASE_AUTH_ADMIN_KEY` | 服务端 Auth 删除账号，要求用户再次输入当前密码；业务表走独立的受限 SQL 连接 |
 | `WENSHAN_DATABASE_URL` | 应用受限 PostgreSQL 连接，Preview 与 Production 各自配置 |
+| `WENSHAN_DATABASE_CA` | 对应 Supabase 的官方 PEM CA，保留换行，运行时校验证书链和主机名。从 Supabase Database Settings 的 SSL Configuration 下载 |
 | `WENSHAN_ACCOUNT_ORIGIN` | 可选规范站点域名。生产可设 HTTPS 域名，动态 Preview 可留空 |
 | `WENSHAN_AI_PROVIDER` | `ollama`、`gemini` 或 `demo` |
 | `GEMINI_API_KEY`、`GEMINI_MODEL`、`GEMINI_LIMIT_PER_MINUTE`、`GEMINI_LIMIT_PER_DAY` | Gemini 配置，额度为 0 时停止云端调用 |
@@ -43,13 +46,13 @@ Vercel 云函数内的文件路径无法代替持久化数据库。Ollama 只连
 
 ## 修改 → 预览 → 验收 → 发布
 
-首次远程只推获准的 `dev/launch-readiness`。Vercel 缺少 `main` 时可能把默认分支选作生产。连接 Git 前确认 Vercel 项目能单独创建 Preview 并启用其访问保护；开启系统环境变量，保持 `WENSHAN_ALLOW_PRODUCTION` 缺省。若自动导入将首个开发分支标记为 Production，仓库的 `vercel.json` 构建门控会跳过该构建，可从同一项目发起显式 Preview。Preview 合格后，获得「确认正式上线」才创建或合并 `main`、设置 Production Branch 与放行变量。 [Vercel 生产分支规则](https://vercel.com/docs/git) · [Vercel 构建门控](https://vercel.com/docs/project-configuration/project-settings#ignored-build-step)
+首次公开发布须满足线上验收条件、数据库迁移的独立批准和用户明确发布指令。保留受保护的 Preview，生产放行变量保持缺省。首次发布获准后再建立 `main`、设置 Production Branch 并启用生产放行。后续每次正式发布仍须用户明确确认。 [Vercel 生产分支规则](https://vercel.com/docs/git) · [Vercel 构建门控](https://vercel.com/docs/project-configuration/project-settings#ignored-build-step)
 
-1. 从 `main` 创建 `dev/<任务名>`。在本机完成修改、`npm test`、`npm run build`、`npm run typecheck` 和必要的浏览器检查。确认分支范围及提交候选文件，再在授权后推送分支并开 PR。
-2. GitHub Actions 运行构建、单元测试、桌面与移动视口回归。Vercel 自动在 PR 挂出 Preview。打开 Preview 的 `/api/health`，对比版本 SHA，再在站内走一遍登录、结契、掷六次、保存记录、退出后重新登录。
-3. 有迁移的 PR 先在 Preview 独立数据库执行迁移并验证旧版本与新版本都能读写。在发布前记录备份、恢复演练结果和恢复用时。没有迁移的 PR 走常规代码验收。
-4. 把 Preview 网址、验证结果、是否有迁移发给用户。用户明确确认发布后，在已经满足保护规则的情况下合并 `main`。若有迁移，先完成另行批准的兼容迁移，再合并代码。Vercel 自动更新同一正式域名，应用继续连接原生产数据库。
-5. 在正式域名检查 `/api/health` 的版本、主页与账号读写，用专门的测试账号快速验收。记录新 SHA 与上一稳定部署，检查运行日志。
+1. 日常功能修改在独立开发分支进行。`main` 建立后，以它为基线开分支。首次发布前，现有上线准备可沿用 `dev/launch-readiness`。
+2. 自动执行 `npm test`、`npm run build`、`npm run typecheck` 和适用的浏览器检查。测试通过后按用户的持续授权推送开发分支到私有 GitHub 仓库，触发 GitHub Actions 和 Vercel Git Preview。
+3. 等 Preview 就绪后核对部署提交 SHA、`/api/health` 和改动涉及的功能，向用户交付本次实际验证过的受保护网址、结果和迁移影响。
+4. 有数据库改动时，先审查版本化迁移，在独立 Preview 实测新旧版本兼容与恢复，验证备份后取得正式迁移批准。生产库沿用原项目，更新时保留账户、灵宠和历史数据。
+5. 用户明确确认满意并要求发布后，合并审查通过的版本到 `main`，由同一 Vercel 项目自动更新原正式域名。部署沿用既有 Supabase 数据库和 Gemini 环境配置，素材通过版本库更新。上线后验证版本、账号读写和相关功能，记录上一稳定部署供回滚。
 
 ## 版本化迁移与历史账号
 
